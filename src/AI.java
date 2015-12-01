@@ -102,34 +102,47 @@ public class AI {
 		while (serverRead.readLine().startsWith("#"))
 			serverRead.readLine();
 		
-		// Server begins broadcasting/dealing cards
-		String[] cardDeal = "";
-		do{
-			cardDeal = serverRead.readLine().split();
+		// Takes all the cards that the server deals to all players
+		String dealString = serverRead.readLine();
+		while (!dealString.equals("") && dealString != null){
+			// Gets the actual information
+			String[] cardDeal = dealString.split();
 			int playerNum = (int) cardDeal[1];
 			char cardChar = cardDeal[2];
 			int cardNum;
 		
+			// Protection against 'X' for the dealer's face down
 			if (cardChar != 'X'){
-			if (cardChar == 'A')
-			cardNum = 1;
-			else if (cardChar == 'J')
-			cardNum = 11;
-			else if (cardChar == 'Q')
-			cardNum = 12;
-			else if (cardChar == 'K')
-			cardNum = 13;
-			else
-			cardNum = (int) cardChar;
-				
-			if (playerNum == myPlayerNumber)
-				myCards.add(cardNum);
-				
-			playedCards[cardNum]++;
+				// Special cases for cards
+				if (cardChar == 'A')
+					cardNum = 1;
+				else if (cardChar == 'J')
+					cardNum = 11;
+				else if (cardChar == 'Q')
+					cardNum = 12;
+				else if (cardChar == 'K')
+					cardNum = 13;
+				else
+					cardNum = (int) cardChar;
+					
+				// Adds it to my own hand of cards
+				if (playerNum == myPlayerNumber)
+					myCards.add(cardNum);
+				else if (playerNum == 0)
+					dealerFaceUp = cardNum;
+					
+				// Adds it to the played cards for counting purposes
+				playedCards[cardNum]++;
 			}
-		} while (cardDeal.startsWith("#"));
+			dealString = serverRead.readLine();
+		}
+		
+		while (!serverRead.readLine().equals("% " + myPlayerNumber + " turn"))
+			System.out.println("Waiting for turn");
+		// get the action to do here
 		
 		
+		// get the dealer's face down card, and their ther cards, and add to the used cards list
 	}
 
 }
