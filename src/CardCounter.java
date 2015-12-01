@@ -8,11 +8,13 @@ public class CardCounter
 	private int totalCards = 312;
 	private int[] availableCards = new int[13];
 	private AI ai;
+	private ActionSelector actionSelector;
 	private boolean hasAces;
 
-	public CardCounter(AI ai)
+	public CardCounter(AI ai, ActionSelector actionSelector)
 	{
 		this.ai = ai;
+		this.actionSelector=actionSelector;
 		for (int card = 0; card < 13; card++)
 		{
 			availableCards[card] = 24;
@@ -27,15 +29,8 @@ public class CardCounter
 			availableCards[card] -= ai.playedCards[card];
 			totalCards-=ai.playedCards[card];
 		}
-		int totalPoints=0;
-		for (int card = 0; card < ai.myCards.size(); card++)
-		{
-			totalPoints+= ai.myCards.get(card).intValue();
-			if(ai.myCards.get(card).intValue()==1)
-			{
-				hasAces=true;
-			}
-		}
+		int totalPoints=actionSelector.getCardTotal();
+		int leeway = 21-
 		
 	}
 
