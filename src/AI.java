@@ -92,7 +92,11 @@ public class AI {
 		myCoins = 1000;
 
 		// First round starts
+		while (!serverRead.readLine().equals("% NEWROUND"))
+			System.out.println("Waiting for new round to start");
 		serverWrite.println(BET_AMOUNT);
+		while (serverRead.readLine().startsWith("#"))
+			serverRead.readLine();
 	}
 
 }
