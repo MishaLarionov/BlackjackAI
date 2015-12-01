@@ -1,6 +1,6 @@
 /**
  * Chooses the move to make
- * @author Iain
+ * @author Felix, Iain, Vince
  *
  */
 public class ActionSelector
