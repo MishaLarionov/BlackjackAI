@@ -20,6 +20,8 @@ public class AI {
 
 	private ActionSelector decision;
 	private int BET_AMOUNT = 1;
+	private int myPlayerNumber;
+	private String USER_NAME = "VinceFe%20lix\n\\#$ !*%@IainAI";
 
 	public static void main(String[] args) {
 		try {
@@ -70,7 +72,7 @@ public class AI {
 		// Init connection w/ server
 		serverWrite.println("player");
 		serverWrite.flush();
-		serverWrite.print("VinceFelix\\#$!*%@IainAI");
+		serverWrite.print(USER_NAME);
 		serverWrite.flush();
 
 		// Gets info about current player
@@ -78,7 +80,7 @@ public class AI {
 
 		introInfo = serverRead.readLine();
 
-		int myPlayerNumber = Integer.parseInt(introInfo.substring(
+		myPlayerNumber = Integer.parseInt(introInfo.substring(
 				introInfo.indexOf(' '), introInfo.indexOf(' ', 1)));
 
 		// Waits for game to start
@@ -86,17 +88,44 @@ public class AI {
 		// "this other player joined, etc."
 
 		serverWrite.println("READY");
-		while (!serverRead.readLine().equals("% START"))
-			System.out.println("waiting for game to start");
-		// For the first "NEWROUND" message
+		while (serverRead.readLine().startsWith("@"))
+			System.out.println("waiting for game to start, other players are joining");
+		System.out.println("Game has started.");
 		myCoins = 1000;
 
-		// First round starts
+		// First round starts, init 
+		// TODO add support for multiple rounds 
 		while (!serverRead.readLine().equals("% NEWROUND"))
 			System.out.println("Waiting for new round to start");
+		System.out.println("Round has started");
 		serverWrite.println(BET_AMOUNT);
 		while (serverRead.readLine().startsWith("#"))
 			serverRead.readLine();
+		
+		// Server begins broadcasting/dealing cards
+		String[] cardDeal = "";
+		do{
+			cardDeal = serverRead.readLine().split();
+			int playerNum = (int) cardDeal[1];
+			int cardChar = cardDeal[2];
+			int cardNum;
+		
+			if (cardChar == 'A')
+			cardNum = 1;
+			else if (cardChar == 'J')
+			cardNum = 11;
+			else if (cardChar == 'Q')
+			cardNum = 12;
+			else if (cardChar == 'K')
+			cardNum = 13;
+			else
+			cardNum = (int) cardChar;
+				
+				if (playerNum == myPlayerNumber)
+			{
+				myCards.add(cardNum);
+			}
+		} while (cardDeal.startsWith("#"));
 	}
 
 }
