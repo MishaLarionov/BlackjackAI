@@ -107,9 +107,10 @@ public class AI {
 		do{
 			cardDeal = serverRead.readLine().split();
 			int playerNum = (int) cardDeal[1];
-			int cardChar = cardDeal[2];
+			char cardChar = cardDeal[2];
 			int cardNum;
 		
+			if (cardChar != 'X'){
 			if (cardChar == 'A')
 			cardNum = 1;
 			else if (cardChar == 'J')
@@ -121,11 +122,14 @@ public class AI {
 			else
 			cardNum = (int) cardChar;
 				
-				if (playerNum == myPlayerNumber)
-			{
+			if (playerNum == myPlayerNumber)
 				myCards.add(cardNum);
+				
+			playedCards[cardNum]++;
 			}
 		} while (cardDeal.startsWith("#"));
+		
+		
 	}
 
 }
