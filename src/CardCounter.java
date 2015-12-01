@@ -30,7 +30,7 @@ public class CardCounter
 			totalCards-=ai.playedCards[card];
 		}
 		int totalPoints=actionSelector.getCardTotal();
-		int leeway = 21-
+		int leeway = 21-totalPoints;
 		
 	}
 
