@@ -3,6 +3,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
+import java.util.ArrayList;
 
 public class AI {
 
@@ -10,7 +11,12 @@ public class AI {
 	private Socket server;
 	private PrintWriter serverWrite;
 	private BufferedReader serverRead;
-
+	
+	protected ArrayList<Integer> myCards = new ArrayList<Integer>();
+	protected int[] playedCards = new int[312];
+	
+	private ActionSelector decision;
+	
 	public static void main(String[] args) {
 		new AI();
 	}
@@ -50,8 +56,20 @@ public class AI {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+		
+		decision = new ActionSelector();
 
 		serverWrite.print("VinceFelixIainAI");
+		serverWrite.flush();
+		
+		String introInfo = "";
+		try {
+			introInfo = serverRead.readLine();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		int myPlayerNumber = Integer.parseInt(introInfo.substring(0, introInfo.indexOf(' ')));
+		
 	}
 
 }
