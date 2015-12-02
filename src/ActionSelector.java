@@ -9,9 +9,12 @@ public class ActionSelector
 	final int STAND = 1;
 	final int HIT = 0;
 	final int DOUBLE = 2;
+	final int[] CARD_VALUES = new int[] { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 10,
+			10, 10 };
 
-	// AI reference
+	// AI reference, cardcounter
 	private AI ai;
+	private CardCounter counter;
 
 	// Variables in determining the move
 	protected int total;
@@ -21,6 +24,7 @@ public class ActionSelector
 	protected ActionSelector(AI ai)
 	{
 		this.ai = ai;
+		counter = new CardCounter(ai, this);
 	}
 
 	/**
@@ -48,7 +52,9 @@ public class ActionSelector
 		int total = 0;
 
 		for (int card = 0; card < ai.myCards.size(); card++)
-			total += ai.myCards.get(card).intValue();
+		{
+			total += CARD_VALUES[ai.myCards.get(card).intValue()];
+		}
 
 		return total;
 	}
@@ -65,18 +71,18 @@ public class ActionSelector
 
 		return false;
 	}
-	
+
 	/**
 	 * Determines if dealt a pair
 	 * @return if dealt a pair
 	 */
 	protected boolean isPair()
 	{
-		for (int card = 0; card < ai.myCards.size();card++)
+		for (int card = 0; card < ai.myCards.size(); card++)
 		{
-			
+
 		}
-		
+
 		return false;
 	}
 }
