@@ -23,7 +23,7 @@ public class CardCounter
 	 * @param actionSelector the ActionSeletor object to receive information
 	 *            from;
 	 */
-	public CardCounter(AI ai, ActionSelector actionSelector)
+	protected CardCounter(AI ai, ActionSelector actionSelector)
 	{
 		// Instantiates variables, fills up the availableCards array with 24 in
 		// each index
@@ -34,6 +34,10 @@ public class CardCounter
 		{
 			availableCards[card] = 24;
 		}
+	}
+	protected void newCard(int card)
+	{
+		availableCards[card-1]--;
 	}
 
 	/**
@@ -54,14 +58,6 @@ public class CardCounter
 		}
 		else
 		{
-			// Updates the availableCards array using the playedCards array from
-			// the AI object, which contains the number of each unique numbered
-			// card already played. Also updates the total number of cards left
-			for (int card = 0; card < 13; card++)
-			{
-				availableCards[card] -= ai.playedCards[card];
-				totalCards -= ai.playedCards[card];
-			}
 			// If the leeway is exactly 11, the probability of getting 21 is
 			// determined by the probability of an Ace, it is impossible to go
 			// bust, and the probability of staying under is 100%
