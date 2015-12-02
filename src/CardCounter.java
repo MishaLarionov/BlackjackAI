@@ -35,19 +35,22 @@ public class CardCounter
 			availableCards[card] = 24;
 		}
 	}
+
+	/**
+	 * Updates the availableCards array with cards dealt by the dealer
+	 * @param card the number of the card
+	 */
 	protected void newCard(int card)
 	{
-		availableCards[card-1]--;
+		availableCards[card - 1]--;
 	}
 
 	/**
 	 * A method for calculating the probability of staying under 21, getting 21,
 	 * and going bust (over 21)
 	 */
-	protected void calculate()
+	protected void calculate(int totalPoints)
 	{
-		// Gets the total points of the current two cards
-		int totalPoints = actionSelector.getCardTotal();
 		// Finds the leeway that is available
 		int leeway = 21 - totalPoints;
 		// Should the leeway be greater that 11, the bot can never go bust or
