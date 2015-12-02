@@ -60,7 +60,6 @@ public class AI {
 		}
 
 		// Sets up connection
-
 		server = new Socket(ip, Integer.parseInt(port));
 
 		serverRead = new BufferedReader(new InputStreamReader(
@@ -72,98 +71,172 @@ public class AI {
 		// Init connection w/ server
 		serverWrite.println("PLAY");
 		serverWrite.flush();
+
+		// So apparently you can spam the server with requests to play every
+		// second if you're not accepted right away. So that's what we're gonig
+		// to do.
 		while (!serverRead.readLine().equals("% ACCEPTED")) {
 			serverWrite.println("PLAY");
 			serverWrite.flush();
 			try {
-				Thread.sleep(999);
+				Thread.sleep(1000);
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}
 		}
+
+		// When finally accepted into the lobby, gives them our name.
 		serverWrite.print(USER_NAME);
 		serverWrite.flush();
 
-		// Gets info about current player
-		String introInfo = "";
+		// Gets info about current player from server
+		myPlayerNumber = Integer.parseInt(serverRead.readLine().split(" ")[1]
+				.trim());
 
-		introInfo = serverRead.readLine();
-
-		myPlayerNumber = Integer.parseInt(introInfo.split(" ")[1]);
-		
 		// Waits for game to start
 		// They broadcast a bunch of useless stuff like
 		// "this other player joined, etc."
-
 		serverWrite.println("READY");
+		serverWrite.flush();
 		while (!serverRead.readLine().startsWith("% ST"))
 			System.out
 					.println("waiting for game to start, other players are joining");
 		System.out.println("Game has started.");
 		myCoins = 1000;
 
-		// First round starts, init
 		// TODO add support for multiple rounds
 		while (true) {
-			while (!serverRead.readLine().equals("% NEWROUND"))
-				System.out.println("Waiting for new round to start");
-			System.out.println("Round has started");
-			serverWrite.println(BET_AMOUNT);
-			while (serverRead.readLine().startsWith("#"))
-				serverRead.readLine();
+			runRound();
+		}
+	}
 
-			// Takes all the cards that the server deals to all players
-			String dealString = serverRead.readLine();
-			while (!dealString.equals("") && dealString != null) {
-				// Gets the actual information
-				String[] cardDeal = dealString.split(" ");
-				int playerNum = Integer.parseInt(cardDeal[1]);
-				char cardChar = cardDeal[2].charAt(0);
-				int cardNum;
+	private void runRound() throws IOException {
+		// Waits for the server to start a new round
+		while (!serverRead.readLine().equals("% NEWROUND"))
+			System.out.println("Waiting for new round to start");
+		System.out.println("Round has started");
 
-				// Protection against 'X' for the dealer's face down
-				if (cardChar != 'X') {
-					// Special cases for cards
-					if (cardChar == 'A')
-						cardNum = 1;
-					else if (cardChar == 'J')
-						cardNum = 11;
-					else if (cardChar == 'Q')
-						cardNum = 12;
-					else if (cardChar == 'K')
-						cardNum = 13;
-					else
-						cardNum = (int) cardChar;
+		// Tell server bet amount, and
+		serverWrite.println(BET_AMOUNT);
+		serverWrite.flush();
 
-					// Adds it to my own hand of cards
-					if (playerNum == myPlayerNumber)
-						myCards.add(cardNum);
-					else if (playerNum == 0)
-						dealerFaceUp = cardNum;
-
-					// Adds it to the played cards for counting purposes
-					playedCards[cardNum]++;
-				}
-				dealString = serverRead.readLine();
-			}
-
-			while (!serverRead.readLine().equals(
-					"% " + myPlayerNumber + " turn"))
-				System.out.println("Waiting for turn");
-
-			// get the action to do here
-
-			// Gets the face-down card and other cards that the dealer pulls
-			String remainingCards = serverRead.readLine();
-			while (remainingCards.startsWith("#")) {
-				String[] rCards = remainingCards.split(" ");
-				playedCards[Integer.parseInt(rCards[2])]++;
-
-				remainingCards = serverRead.readLine();
-			}
-
-			// More stuff?
+		// Server will broadcast bets by other players, so ignore that.
+		String bet = serverRead.readLine();
+		while (bet.startsWith("$")) {
+			System.out.println("Another bet placed by a player,"
+					+ "still waiting for dealing to begin.");
+			// The last "bet" that we read is actually a card deal, so we need
+			// to accomodate for that.
+			bet = serverRead.readLine();
 		}
 
+		// Takes all the cards that the server deals to all players
+		String dealString = bet;
+		while (dealString.charAt(0) == '#') {
+			// Gets the actual information
+			String[] cardDeal = dealString.split(" ");
+			int playerNum = Integer.parseInt(cardDeal[1]);
+			char cardChar = cardDeal[2].charAt(0);
+			int cardNum;
+
+			// Protection against 'X' for the dealer's face down
+			if (cardChar != 'X') {
+				cardNum = parseCard(cardChar);
+
+				// If it's mine, add it to my own hand of cards
+				if (playerNum == myPlayerNumber)
+					myCards.add(cardNum);
+				else if (playerNum == 0)
+					dealerFaceUp = cardNum;
+
+				// Adds it to the played cards for counting purposes
+				decision.cardDealt(cardNum);
+			}
+
+			// Gets the next deal from server
+			while (!serverRead.ready())
+				System.out
+						.println("Waiting for server to send out another deal");
+			dealString = serverRead.readLine();
+		}
+
+		// Waits for my turn
+		String turnStr = dealString;
+		while (!turnStr.equals("% " + myPlayerNumber + " turn")) {
+			System.out.println("Waiting for turn");
+			turnStr = serverRead.readLine();
+		}
+
+		// Does the move accordingly
+		// TODO redo this for each player to call hit multiple times
+		int move = decision.decideFirstMove();
+		while (move == ActionSelector.HIT) {
+			serverWrite.println("hit");
+			serverWrite.flush();
+			System.out.println("Sent hit to server");
+
+			decision.cardDealt(parseCard(serverRead.readLine().split(" ")[2]
+					.charAt(0)));
+
+			move = decision.decideFirstMove();
+		}
+		// switch (move) {
+		// case ActionSelector.DOUBLE:
+		// serverWrite.println("doubledown");
+		// System.out.println("Sent double down to server");
+		// break;
+		//
+		// case ActionSelector.HIT:
+		// serverWrite.println("hit");
+		// System.out.println("Sent hit to server");
+		// break;
+		//
+		// case ActionSelector.STAND:
+		// serverWrite.println("stand");
+		// System.out.println("Sent stand to server");
+		// break;
+		//
+		// default:
+		// break;
+		// }
+		// serverWrite.flush();
+
+		// Gets the face-down card and other cards that the dealer pulls
+		String remainingCards = serverRead.readLine();
+		while (remainingCards.startsWith("#")) {
+			String[] rCards = remainingCards.split(" ");
+			playedCards[Integer.parseInt(rCards[2])]++;
+
+			if (serverRead.ready())
+				remainingCards = serverRead.readLine();
+		}
+
+		// More stuff?
+	}
+
+	private int parseCard(char cardChar) {
+		int cardNum;
+		// Special cases for "face" cards
+		switch (cardChar) {
+		case 'A':
+			cardNum = 1;
+			break;
+		case 'T':
+			cardNum = 10;
+			break;
+		case 'J':
+			cardNum = 11;
+			break;
+		case 'Q':
+			cardNum = 12;
+			break;
+		case 'K':
+			cardNum = 13;
+			break;
+		default:
+			cardNum = Integer.parseInt(cardChar + "");
+			break;
+		}
+		return cardNum;
 	}
 }
