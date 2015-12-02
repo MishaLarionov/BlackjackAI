@@ -19,11 +19,14 @@ public class CardCounter
 	/**
 	 * The constructor for the CardCounter object, fills up the array of cards
 	 * in play with 24 cards for each unique numbered card
-	 * @param ai
-	 * @param actionSelector
+	 * @param ai the AI object that controls the bot
+	 * @param actionSelector the ActionSeletor object to receive information
+	 *            from;
 	 */
 	public CardCounter(AI ai, ActionSelector actionSelector)
 	{
+		// Instantiates variables, fills up the availableCards array with 24 in
+		// each index
 		this.ai = ai;
 		this.actionSelector = actionSelector;
 		probabilities = new double[3];
@@ -33,21 +36,35 @@ public class CardCounter
 		}
 	}
 
+	/**
+	 * A method for calculating the probability of staying under 21, getting 21,
+	 * and going bust (over 21)
+	 */
 	protected void calculate()
 	{
+		// Gets the total points of the current two cards
 		int totalPoints = actionSelector.getCardTotal();
+		// Finds the leeway that is available
 		int leeway = 21 - totalPoints;
+		// Should the leeway be greater that 11, the bot can never go bust or
+		// get 21, and will always stay under (100%)
 		if (leeway > 11)
 		{
 			probabilities[UNDER] = 100;
 		}
 		else
 		{
+			// Updates the availableCards array using the playedCards array from
+			// the AI object, which contains the number of each unique numbered
+			// card already played. Also updates the total number of cards left
 			for (int card = 0; card < 13; card++)
 			{
 				availableCards[card] -= ai.playedCards[card];
 				totalCards -= ai.playedCards[card];
 			}
+			// If the leeway is exactly 11, the probability of getting 21 is
+			// determined by the probability of an Ace, it is impossible to go
+			// bust, and the probability of staying under is 100%
 			if (leeway == 11)
 			{
 				probabilities[PERFECT] = (availableCards[0] / (totalCards * 1.0)) * 100;
@@ -55,12 +72,21 @@ public class CardCounter
 			}
 			else
 			{
+				// Calculates the average probability of staying under 21, by
+				// adding up the probabilities of each card that would allow the
+				// bot to stay under 21, and then averaging them out
 				double averageUnder = 0;
 				for (int card = 0; card < leeway - 1; card++)
 				{
 					averageUnder += availableCards[card] / (totalCards * 1.0);
 				}
+				// Sets the probability of staying under to the calculated
+				// average probability
 				probabilities[UNDER] = (averageUnder / leeway - 1) * 100;
+				// Should the leeway be 10, the probability of going bust is 0%
+				// (Aces will not be counted as 11's for logical reasons), and
+				// the probability of getting 21 is the probability of getting a
+				// ten or face card
 				if (leeway == 10)
 				{
 					int totalTens = 0;
@@ -70,21 +96,32 @@ public class CardCounter
 					}
 					probabilities[PERFECT] = (totalTens / (totalCards * 1.0)) * 100;
 				}
+				// Otherwise, the probability of getting 21 is the chance of
+				// getting the card with the same value as the leeway
 				else
 				{
 					probabilities[PERFECT] = (availableCards[leeway - 1] / (totalCards * 1.0)) * 100;
 				}
+				// Calculates the average probability of going bust (over 21),
+				// by adding up the probabilities of each card that would cause
+				// the bot to go bust, then averaging them
 				double averageBust = 0;
 				for (int card = leeway; card < availableCards.length; card++)
 				{
 					averageBust += availableCards[card] / (totalCards * 1.0);
 				}
+				// Sets the probability of goinf byst to the calculated average
+				// probability
 				probabilities[BUST] = (averageBust / availableCards.length - leeway) * 100;
 			}
 		}
 
 	}
 
+	/**
+	 * A method that allows the total number of cards and the availableCards
+	 * array to be rest to their original values
+	 */
 	protected void reset()
 	{
 		totalCards = 312;
