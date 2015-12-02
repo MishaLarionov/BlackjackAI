@@ -9,8 +9,8 @@ public class ActionSelector
 	protected static final int HIT = 0;
 	protected static final int STAND = 1;
 	protected static final int DOUBLE = 2;
-	final int[] CARD_VALUES = new int[] { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 10,
-			10, 10 };
+	protected static final int[] CARD_VALUES = new int[] { 0, 1, 2, 3, 4, 5, 6,
+			7, 8, 9, 10, 10, 10, 10 };
 
 	// AI reference, cardcounter
 	private AI ai;
@@ -18,8 +18,8 @@ public class ActionSelector
 
 	// Variables in determining the move
 	protected int total;
-	boolean isAce;
-	boolean isPair;
+	protected boolean isAce;
+	protected int isPair = 0;
 
 	protected ActionSelector(AI ai)
 	{
@@ -38,11 +38,15 @@ public class ActionSelector
 		// Temp, not needed in final code
 		boolean cardCountHere = true;
 
+		// Factors in determining basic action
+		// isPair = 1 is irrelevant, case is covered in ace section
 		total = getCardTotal();
-		// isAce = isAce();
+		isAce = isAce();
+		isPair = isPair();
 
-		// Basic case with no aces or pairs
-		if (!isAce && !isPair)
+		// Basic case with no aces or pairs above 5 (otherwise same actions as
+		// no split command is available)
+		if (!isAce && isPair < 6)
 		{
 			// Guaranteed action
 			if (total < 9)
@@ -155,8 +159,16 @@ public class ActionSelector
 		}
 
 		// If an Ace was dealt
+		else if (isAce)
+		{
+
+		}
 
 		// If a pair was dealt
+		else if (isPair > 1)
+		{
+
+		}
 
 		return tempAction;
 	}
@@ -194,7 +206,7 @@ public class ActionSelector
 	 * Determines if dealt a pair
 	 * @return if dealt a pair
 	 */
-	protected boolean isPair()
+	protected int isPair()
 	{
 		boolean[] oneCard = new boolean[14];
 
@@ -202,9 +214,22 @@ public class ActionSelector
 		{
 			int cardAt = ai.myCards.get(card).intValue();
 
-			// if (oneCard[])
+			if (oneCard[cardAt])
+				return cardAt;
+
+			oneCard[cardAt] = true;
 		}
 
-		return false;
+		// If no pair, return 0
+		return 0;
+	}
+
+	/**
+	 * Sends a dealt "hit" card to the counter to recalculate
+	 * @param cardDealt
+	 */
+	protected void cardDealt(int cardDealt)
+	{
+		counter.newCard(cardDealt);
 	}
 }
