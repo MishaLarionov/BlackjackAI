@@ -12,7 +12,7 @@ public class AI {
 	private BufferedReader serverRead;
 
 	// 1 is Ace, 11 is Jack, 12 is Queen, 13 is King
-	protected ArrayList<Integer> myCards = new ArrayList<Integer>();
+	protected ArrayList<Integer> myHand = new ArrayList<Integer>();
 	// Each index's possible value is 0-24
 	protected int[] playedCards = new int[13];
 	protected short myCoins;
@@ -58,6 +58,9 @@ public class AI {
 					.println("That doesn't look like a valid port number.\nTry again: ");
 			port = br.readLine();
 		}
+
+		br.close();
+		br = null;
 
 		// Sets up connection
 		server = new Socket(ip, Integer.parseInt(port));
@@ -145,7 +148,7 @@ public class AI {
 
 				// If it's mine, add it to my own hand of cards
 				if (playerNum == myPlayerNumber)
-					myCards.add(cardNum);
+					myHand.add(cardNum);
 				else if (playerNum == 0)
 					dealerFaceUp = cardNum;
 
@@ -167,32 +170,14 @@ public class AI {
 			turnStr = serverRead.readLine();
 		}
 
-		// "Hit" is never the last move; something always follows it
-		int move = decision.decideFirstMove();
-		while (move == ActionSelector.HIT) {
-			serverWrite.println("hit");
-			serverWrite.flush();
-			System.out.println("Sent hit to server");
+		runMyTurn();
 
-			decision.cardDealt(parseCard(serverRead.readLine().split(" ")[2]
-					.charAt(0)));
-
-			move = decision.decideFirstMove();
+		while (!turnStr.startsWith("# 0")) {
+			turnStr = serverRead.readLine();
+			System.out.println("Waiting for the server to reveal their cards");
 		}
-		// Either a double down or a stand must be the last move.
-		if (move == ActionSelector.DOUBLE)
-		{
-			serverWrite.println("doubledown");
-			System.out.println("Sent doubledown to server");
-		}
-		else if (move == ActionSelector.STAND) {
-			serverWrite.println("stand");
-			System.out.println("Sent stand to server");
-		}
-		serverWrite.flush();
-		
 		// TODO add padding between my move and the server's card revealing
-		
+
 		// Gets the face-down card and other cards that the dealer pulls
 		String remainingCards = serverRead.readLine();
 		while (remainingCards.startsWith("#")) {
@@ -203,7 +188,20 @@ public class AI {
 				remainingCards = serverRead.readLine();
 		}
 
-		// More stuff?
+		String updateStr = turnStr;
+		while (!updateStr.startsWith("+")) {
+			updateStr = serverRead.readLine();
+		}
+		String[] updateCoins = updateStr.split(" ");
+		for (int i = 1; i < updateCoins.length; i += 2) {
+			if (Integer.parseInt(updateCoins[i]) == myPlayerNumber) {
+				try {
+					myCoins = Short.parseShort(updateCoins[i + 1]);
+				} catch (ArrayIndexOutOfBoundsException e) {
+					e.printStackTrace();
+				}
+			}
+		}
 	}
 
 	private int parseCard(char cardChar) {
@@ -230,5 +228,29 @@ public class AI {
 			break;
 		}
 		return cardNum;
+	}
+
+	private void runMyTurn() throws IOException {
+		// "Hit" is never the last move; something always follows it
+		int move = decision.decideFirstMove();
+		while (move == ActionSelector.HIT) {
+			serverWrite.println("hit");
+			serverWrite.flush();
+			System.out.println("Sent hit to server");
+
+			decision.cardDealt(parseCard(serverRead.readLine().split(" ")[2]
+					.charAt(0)));
+
+			move = decision.decideFirstMove();
+		}
+		// Either a double down or a stand must be the last move.
+		if (move == ActionSelector.DOUBLE) {
+			serverWrite.println("doubledown");
+			System.out.println("Sent doubledown to server");
+		} else if (move == ActionSelector.STAND) {
+			serverWrite.println("stand");
+			System.out.println("Sent stand to server");
+		}
+		serverWrite.flush();
 	}
 }
