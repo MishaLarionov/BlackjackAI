@@ -70,8 +70,14 @@ public class AI {
 		decision = new ActionSelector(this);
 
 		// Init connection w/ server
-		serverWrite.println("player");
+		serverWrite.println("PLAY");
 		serverWrite.flush();
+		while (!serverRead.readLine().equals("% ACCEPTED")){
+			serverWrite.println("PLAY");
+		serverWrite.flush();
+		try{
+		Thread.sleep(999);} catch (InterruptedThreadException e) {e.printStackTrace()}
+		}
 		serverWrite.print(USER_NAME);
 		serverWrite.flush();
 
@@ -80,6 +86,7 @@ public class AI {
 
 		introInfo = serverRead.readLine();
 
+		// TODO use string.split to make this cleaner
 		myPlayerNumber = Integer.parseInt(introInfo.substring(
 				introInfo.indexOf(' '), introInfo.indexOf(' ', 1)));
 
@@ -88,7 +95,7 @@ public class AI {
 		// "this other player joined, etc."
 
 		serverWrite.println("READY");
-		while (serverRead.readLine().startsWith("@"))
+		while (!serverRead.readLine().startsWith("% ST"))
 			System.out.println("waiting for game to start, other players are joining");
 		System.out.println("Game has started.");
 		myCoins = 1000;
