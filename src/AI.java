@@ -167,8 +167,7 @@ public class AI {
 			turnStr = serverRead.readLine();
 		}
 
-		// Does the move accordingly
-		// TODO redo this for each player to call hit multiple times
+		// "Hit" is never the last move; something always follows it
 		int move = decision.decideFirstMove();
 		while (move == ActionSelector.HIT) {
 			serverWrite.println("hit");
@@ -180,27 +179,20 @@ public class AI {
 
 			move = decision.decideFirstMove();
 		}
-		// switch (move) {
-		// case ActionSelector.DOUBLE:
-		// serverWrite.println("doubledown");
-		// System.out.println("Sent double down to server");
-		// break;
-		//
-		// case ActionSelector.HIT:
-		// serverWrite.println("hit");
-		// System.out.println("Sent hit to server");
-		// break;
-		//
-		// case ActionSelector.STAND:
-		// serverWrite.println("stand");
-		// System.out.println("Sent stand to server");
-		// break;
-		//
-		// default:
-		// break;
-		// }
-		// serverWrite.flush();
-
+		// Either a double down or a stand must be the last move.
+		if (move == ActionSelector.DOUBLE)
+		{
+			serverWrite.println("doubledown");
+			System.out.println("Sent doubledown to server");
+		}
+		else if (move == ActionSelector.STAND) {
+			serverWrite.println("stand");
+			System.out.println("Sent stand to server");
+		}
+		serverWrite.flush();
+		
+		// TODO add padding between my move and the server's card revealing
+		
 		// Gets the face-down card and other cards that the dealer pulls
 		String remainingCards = serverRead.readLine();
 		while (remainingCards.startsWith("#")) {
