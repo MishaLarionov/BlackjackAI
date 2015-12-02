@@ -17,6 +17,7 @@ public class ActionSelector
 	private CardCounter counter;
 
 	// Variables in determining the move
+	protected int[] aceTotal;
 	protected int total;
 	protected boolean isAce;
 	protected int isPair = 0;
@@ -31,12 +32,9 @@ public class ActionSelector
 	 * Decides move based on the total value of the cards, references Felix's
 	 * part when probability is relevant
 	 */
-	public int decideMove()
+	public int decideFirstMove()
 	{
 		int tempAction = -1;
-
-		// Temp, not needed in final code
-		boolean cardCountHere = true;
 
 		// Factors in determining basic action
 		// isPair = 1 is irrelevant, case is covered in ace section
@@ -58,18 +56,10 @@ public class ActionSelector
 				if (ai.dealerFaceUp > 2 && ai.dealerFaceUp < 7)
 				{
 					tempAction = DOUBLE;
-
-					// Call probability, if above certain threshold for certain
-					// possibilities, then change decided action
-					cardCountHere = true;
 				}
 				else
 				{
 					tempAction = HIT;
-
-					// Call probability, if above certain threshold for certain
-					// possibilities, then change decided action
-					cardCountHere = true;
 				}
 			}
 			if (total == 10)
@@ -77,18 +67,10 @@ public class ActionSelector
 				if (ai.dealerFaceUp > 1 && ai.dealerFaceUp < 10)
 				{
 					tempAction = DOUBLE;
-
-					// Call probability, if above certain threshold for certain
-					// possibilities, then change decided action
-					cardCountHere = true;
 				}
 				else
 				{
 					tempAction = HIT;
-
-					// Call probability, if above certain threshold for certain
-					// possibilities, then change decided action
-					cardCountHere = true;
 				}
 			}
 			if (total == 11)
@@ -96,18 +78,10 @@ public class ActionSelector
 				if (ai.dealerFaceUp != 1)
 				{
 					tempAction = DOUBLE;
-
-					// Call probability, if above certain threshold for certain
-					// possibilities, then change decided action
-					cardCountHere = true;
 				}
 				else
 				{
 					tempAction = HIT;
-
-					// Call probability, if above certain threshold for certain
-					// possibilities, then change decided action
-					cardCountHere = true;
 				}
 			}
 			if (total == 12)
@@ -115,18 +89,10 @@ public class ActionSelector
 				if (ai.dealerFaceUp > 3 && ai.dealerFaceUp < 7)
 				{
 					tempAction = STAND;
-
-					// Call probability, if above certain threshold for certain
-					// possibilities, then change decided action
-					cardCountHere = true;
 				}
 				else
 				{
 					tempAction = HIT;
-
-					// Call probability, if above certain threshold for certain
-					// possibilities, then change decided action
-					cardCountHere = true;
 				}
 			}
 			if (total > 12 && total < 17)
@@ -134,27 +100,15 @@ public class ActionSelector
 				if (ai.dealerFaceUp > 7)
 				{
 					tempAction = HIT;
-
-					// Call probability, if above certain threshold for certain
-					// possibilities, then change decided action
-					cardCountHere = true;
 				}
 				else
 				{
 					tempAction = STAND;
-
-					// Call probability, if above certain threshold for certain
-					// possibilities, then change decided action
-					cardCountHere = true;
 				}
 			}
 			if (total > 17)
 			{
 				tempAction = STAND;
-
-				// Higher threshold of probability needed for this situation to
-				// change decision
-				cardCountHere = true;
 			}
 		}
 
