@@ -106,7 +106,7 @@ public class AI {
 		String dealString = serverRead.readLine();
 		while (!dealString.equals("") && dealString != null){
 			// Gets the actual information
-			String[] cardDeal = dealString.split();
+			String[] cardDeal = dealString.split(" ");
 			int playerNum = (int) cardDeal[1];
 			char cardChar = cardDeal[2];
 			int cardNum;
