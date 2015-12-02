@@ -6,6 +6,8 @@ import java.net.Socket;
 import java.util.ArrayList;
 
 public class AI {
+	
+	// TODO Thread.sleep all reading from server by 500ms (or whatever they want to do for their timings)
 
 	private Socket server;
 	private PrintWriter serverWrite;
@@ -101,7 +103,8 @@ public class AI {
 		myCoins = 1000;
 
 		// First round starts, init 
-		// TODO add support for multiple rounds 
+		// TODO add support for multiple rounds
+		while (true){
 		while (!serverRead.readLine().equals("% NEWROUND"))
 			System.out.println("Waiting for new round to start");
 		System.out.println("Round has started");
@@ -148,8 +151,17 @@ public class AI {
 			System.out.println("Waiting for turn");
 		// get the action to do here
 		
+		// Gets the face-down card and other cards that the dealer pulls
+		String remainingCards = serverRead.readLine();
+		while (remainingCards.startsWith("#")){
+			String[] rCards = remainingCards.split(" ");
+			playedCards[(int) rCards[2]]++;
+			
+			remainingCards = serverRead.readLine();
+		}
 		
-		// get the dealer's face down card, and their ther cards, and add to the used cards list
+		// More stuff?
 	}
 
+}
 }
