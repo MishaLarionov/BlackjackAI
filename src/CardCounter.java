@@ -5,15 +5,23 @@
  */
 public class CardCounter
 {
+	// Initializes variables, important ones including the total number of
+	// cards, as well as an array to store cards still in play
 	private int totalCards = 312;
 	private int[] availableCards = new int[13];
 	private AI ai;
 	private ActionSelector actionSelector;
-	private double[] probabilities;
+	protected double[] probabilities;
 	private final int UNDER = 0;
 	private final int PERFECT = 1;
 	private final int BUST = 2;
 
+	/**
+	 * The constructor for the CardCounter object, fills up the array of cards
+	 * in play with 24 cards for each unique numbered card
+	 * @param ai
+	 * @param actionSelector
+	 */
 	public CardCounter(AI ai, ActionSelector actionSelector)
 	{
 		this.ai = ai;
@@ -25,14 +33,13 @@ public class CardCounter
 		}
 	}
 
-	protected double[] calculate()
+	protected void calculate()
 	{
 		int totalPoints = actionSelector.getCardTotal();
 		int leeway = 21 - totalPoints;
 		if (leeway > 11)
 		{
 			probabilities[UNDER] = 100;
-			return probabilities;
 		}
 		else
 		{
@@ -45,7 +52,6 @@ public class CardCounter
 			{
 				probabilities[PERFECT] = (availableCards[0] / (totalCards * 1.0)) * 100;
 				probabilities[UNDER] = 100;
-				return probabilities;
 			}
 			else
 			{
@@ -63,7 +69,6 @@ public class CardCounter
 						totalTens += availableCards[count];
 					}
 					probabilities[PERFECT] = (totalTens / (totalCards * 1.0)) * 100;
-					return probabilities;
 				}
 				else
 				{
@@ -75,7 +80,6 @@ public class CardCounter
 					averageBust += availableCards[card] / (totalCards * 1.0);
 				}
 				probabilities[BUST] = (averageBust / availableCards.length - leeway) * 100;
-				return probabilities;
 			}
 		}
 
