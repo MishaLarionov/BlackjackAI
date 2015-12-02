@@ -9,29 +9,76 @@ public class CardCounter
 	private int[] availableCards = new int[13];
 	private AI ai;
 	private ActionSelector actionSelector;
-	private boolean hasAces;
+	private double[] probabilities;
+	private final int UNDER = 0;
+	private final int PERFECT = 1;
+	private final int BUST = 2;
 
 	public CardCounter(AI ai, ActionSelector actionSelector)
 	{
 		this.ai = ai;
-		this.actionSelector=actionSelector;
+		this.actionSelector = actionSelector;
+		probabilities = new double[3];
 		for (int card = 0; card < 13; card++)
 		{
 			availableCards[card] = 24;
 		}
-		hasAces =false;
 	}
 
-	protected void calculate()
+	protected double[] calculate()
 	{
-		for (int card = 0; card < 13; card++)
+		int totalPoints = actionSelector.getCardTotal();
+		int leeway = 21 - totalPoints;
+		if (leeway > 11)
 		{
-			availableCards[card] -= ai.playedCards[card];
-			totalCards-=ai.playedCards[card];
+			probabilities[UNDER] = 100;
+			return probabilities;
 		}
-		int totalPoints=actionSelector.getCardTotal();
-		int leeway = 21-totalPoints;
-		
+		else
+		{
+			for (int card = 0; card < 13; card++)
+			{
+				availableCards[card] -= ai.playedCards[card];
+				totalCards -= ai.playedCards[card];
+			}
+			if (leeway == 11)
+			{
+				probabilities[PERFECT] = (availableCards[0] / (totalCards * 1.0)) * 100;
+				probabilities[UNDER] = 100;
+				return probabilities;
+			}
+			else
+			{
+				double averageUnder = 0;
+				for (int card = 0; card < leeway - 1; card++)
+				{
+					averageUnder += availableCards[card] / (totalCards * 1.0);
+				}
+				probabilities[UNDER] = (averageUnder / leeway - 1) * 100;
+				if (leeway == 10)
+				{
+					int totalTens = 0;
+					for (int count = 9; count < 13; count++)
+					{
+						totalTens += availableCards[count];
+					}
+					probabilities[PERFECT] = (totalTens / (totalCards * 1.0)) * 100;
+					return probabilities;
+				}
+				else
+				{
+					probabilities[PERFECT] = (availableCards[leeway - 1] / (totalCards * 1.0)) * 100;
+				}
+				double averageBust = 0;
+				for (int card = leeway; card < availableCards.length; card++)
+				{
+					averageBust += availableCards[card] / (totalCards + 1.0);
+				}
+				probabilities[BUST] = (averageBust / availableCards.length - leeway) * 100;
+				return probabilities;
+			}
+		}
+
 	}
 
 	protected void reset()
