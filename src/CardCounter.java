@@ -72,7 +72,7 @@ public class CardCounter
 				double averageBust = 0;
 				for (int card = leeway; card < availableCards.length; card++)
 				{
-					averageBust += availableCards[card] / (totalCards + 1.0);
+					averageBust += availableCards[card] / (totalCards * 1.0);
 				}
 				probabilities[BUST] = (averageBust / availableCards.length - leeway) * 100;
 				return probabilities;
