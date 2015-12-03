@@ -9,6 +9,7 @@ public class ActionSelector
 	protected static final int HIT = 0;
 	protected static final int STAND = 1;
 	protected static final int DOUBLE = 2;
+	protected static final int NO_MOVE = -1;
 	protected static final int[] CARD_VALUES = new int[] { 0, 1, 2, 3, 4, 5, 6,
 			7, 8, 9, 10, 10, 10, 10 };
 
@@ -32,9 +33,9 @@ public class ActionSelector
 	 * Decides move based on the total value of the cards, references Felix's
 	 * part when probability is relevant
 	 */
-	public int decideMove(boolean first)
+	public int decideMove(boolean firstTurn)
 	{
-		int tempAction = -1;
+		int tempAction = NO_MOVE;
 
 		// Factors in determining basic action
 		// isPair = 1 is irrelevant, case is covered in ace section
@@ -42,103 +43,121 @@ public class ActionSelector
 		isAce = isAce();
 		isPair = isPair();
 
-		// Basic case with no aces or pairs above 5 (otherwise same actions as
-		// no split command is available)
-		if (!isAce && isPair < 6)
+		// Covers cheat sheet with first turn algorithms
+		if (firstTurn)
 		{
-			// Guaranteed action
+			// Basic case with no aces or pairs
+			if (!isAce && isPair < 6)
+			{
+				// Guaranteed action
+				if (total < 9)
+					return HIT;
+
+				// Ambiguous actions, cardcounter referenced later
+				if (total == 9)
+				{
+					if (ai.dealerFaceUp > 2 && ai.dealerFaceUp < 7)
+						tempAction = DOUBLE;
+					else
+						tempAction = HIT;
+				}
+				if (total == 10)
+				{
+					if (ai.dealerFaceUp > 1 && ai.dealerFaceUp < 10)
+						tempAction = DOUBLE;
+					else
+						tempAction = HIT;
+				}
+				if (total == 11)
+				{
+					if (ai.dealerFaceUp != 1)
+						tempAction = DOUBLE;
+					else
+						tempAction = HIT;
+				}
+				if (total == 12)
+				{
+					if (ai.dealerFaceUp > 3 && ai.dealerFaceUp < 7)
+						tempAction = STAND;
+					else
+						tempAction = HIT;
+				}
+				if (total > 17)
+					tempAction = STAND;
+			}
+
+			// If an Ace was dealt, also covers ace pair as per the reference
+			// "cheat sheet"
+			else if (isAce)
+			{
+				if (total == 2)
+					tempAction = HIT;
+				else if (total == 3 || total == 4)
+				{
+					if (ai.dealerFaceUp == 5 || ai.dealerFaceUp == 6)
+						tempAction = DOUBLE;
+					else
+						tempAction = HIT;
+				}
+				else if (total == 5 || total == 6)
+				{
+					if (ai.dealerFaceUp > 3 && ai.dealerFaceUp < 7)
+						tempAction = DOUBLE;
+					else
+						tempAction = HIT;
+				}
+				else if (total == 7)
+				{
+					if (ai.dealerFaceUp > 2 && ai.dealerFaceUp < 7)
+						tempAction = DOUBLE;
+					else
+						tempAction = HIT;
+				}
+				else if (total == 8)
+				{
+					if (ai.dealerFaceUp > 2 && ai.dealerFaceUp < 7)
+						tempAction = DOUBLE;
+					else if (ai.dealerFaceUp == 2 || ai.dealerFaceUp == 7
+							|| ai.dealerFaceUp == 8)
+						tempAction = STAND;
+					else
+						tempAction = HIT;
+				}
+				else if (total > 8)
+					tempAction = STAND;
+			}
+
+			// If a pair was dealt (non-aces)
+			else if (isPair > 5)
+			{
+				if (isPair > 5 && isPair < 9)
+					tempAction = HIT;
+				else if (isPair == 9)
+				{
+					if (ai.dealerFaceUp == 7 || ai.dealerFaceUp > 9)
+						tempAction = STAND;
+					else
+						tempAction = HIT;
+				}
+				else
+					return STAND;
+			}
+		}
+
+		// Only total of cards is used to determine action
+		if (!firstTurn)
+		{
 			if (total < 9)
 				return HIT;
-
-			// Combos using CardCounter object to perform calculations
-			if (total == 9)
-			{
-				if (ai.dealerFaceUp > 2 && ai.dealerFaceUp < 7)
-					tempAction = DOUBLE;
-				else
-					tempAction = HIT;
-			}
-			if (total == 10)
-			{
-				if (ai.dealerFaceUp > 1 && ai.dealerFaceUp < 10)
-					tempAction = DOUBLE;
-				else
-					tempAction = HIT;
-			}
-			if (total == 11)
-			{
-				if (ai.dealerFaceUp != 1)
-					tempAction = DOUBLE;
-				else
-					tempAction = HIT;
-			}
-			if (total == 12)
-			{
-				if (ai.dealerFaceUp > 3 && ai.dealerFaceUp < 7)
-					tempAction = STAND;
-				else
-					tempAction = HIT;
-			}
-			if (total > 12 && total < 17)
-			{
-				if (ai.dealerFaceUp > 7)
-					tempAction = HIT;
-				else
-					tempAction = STAND;
-			}
+			if (total < 12)
+				tempAction = HIT;
 			if (total > 17)
 				tempAction = STAND;
 		}
 
-		// If an Ace was dealt, also covers ace pair as per the reference
-		// "cheat sheet"
-		else if (isAce)
-		{
-			if (total == 2)
-				tempAction = HIT;
-			else if (total == 3 || total == 4)
-			{
-				if (ai.dealerFaceUp == 5 || ai.dealerFaceUp == 6)
-					tempAction = DOUBLE;
-				else
-					tempAction = HIT;
-			}
-			else if (total == 5 || total == 6)
-			{
-				if (ai.dealerFaceUp > 3 && ai.dealerFaceUp < 7)
-					tempAction = DOUBLE;
-				else
-					tempAction = HIT;
-			}
-			else if (total == 7)
-			{
-				if (ai.dealerFaceUp > 2 && ai.dealerFaceUp < 7)
-					tempAction = DOUBLE;
-				else
-					tempAction = HIT;
-			}
-			else if (total == 8)
-			{
-				if (ai.dealerFaceUp > 2 && ai.dealerFaceUp < 7)
-					tempAction = DOUBLE;
-				else if (ai.dealerFaceUp == 2 || ai.dealerFaceUp == 7
-						|| ai.dealerFaceUp == 8)
-					tempAction = STAND;
-				else
-					tempAction = HIT;
-			}
-			else if (total > 8)
-				tempAction = STAND;
-		}
-
-		// If a pair was dealt (non-aces)
-		else if (isPair > 5)
-		{
-			if (isPair > 5 && isPair < 9)
-				tempAction = HIT;
-
-		}
-
+		
+		
+		// Returns the decided action
 		return tempAction;
 	}
 
