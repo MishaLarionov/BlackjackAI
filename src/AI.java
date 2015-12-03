@@ -232,7 +232,7 @@ public class AI {
 
 	private void runMyTurn() throws IOException {
 		// "Hit" is never the last move; something always follows it
-		int move = decision.decideFirstMove();
+		int move = decision.decideMove(true);
 		while (move == ActionSelector.HIT) {
 			serverWrite.println("hit");
 			serverWrite.flush();
@@ -241,7 +241,7 @@ public class AI {
 			decision.cardDealt(parseCard(serverRead.readLine().split(" ")[2]
 					.charAt(0)));
 
-			move = decision.decideFirstMove();
+			move = decision.decideMove(false);
 		}
 		// Either a double down or a stand must be the last move.
 		if (move == ActionSelector.DOUBLE) {
