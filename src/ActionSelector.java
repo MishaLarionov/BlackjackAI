@@ -30,6 +30,14 @@ public class ActionSelector
 		this.ai = ai;
 		counter = new CardCounter();
 	}
+	
+	/**
+	 * DEBUG
+	 * TODO think of a way to make this work!!!
+	 */
+	ActionSelector() {
+		
+	}
 
 	/**
 	 * Decides move based on the total value of the cards, references Felix's
