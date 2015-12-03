@@ -16,6 +16,8 @@ public class ActionSelector
 	// AI reference, cardcounter
 	private AI ai;
 	private CardCounter counter;
+	protected static final double DEF_BUST = 30;
+	protected static final double OFF_BUST = 50;
 
 	// Variables in determining the move
 	protected int[] aceTotal;
@@ -26,7 +28,7 @@ public class ActionSelector
 	protected ActionSelector(AI ai)
 	{
 		this.ai = ai;
-		counter = new CardCounter(ai, this);
+		counter = new CardCounter();
 	}
 
 	/**
@@ -42,6 +44,10 @@ public class ActionSelector
 		total = getCardTotal();
 		isAce = isAce();
 		isPair = isPair();
+
+		// If BlackJack, then ignore everything else and return stand
+		if (total == 21 || (total == 11 && isAce))
+			return STAND;
 
 		// Covers cheat sheet with first turn algorithms
 		if (firstTurn)
@@ -155,8 +161,29 @@ public class ActionSelector
 				tempAction = STAND;
 		}
 
+		// Passes cards to cardcounter
+		if (firstTurn)
+		firstCards();
+
 		// If an Ace is present, check for the highest possibility not going
 		// over 21 and check for probabilities
+		if (isAce)
+		{
+			int maxValue = aceMax();
+			counter.calculate(maxValue);
+
+			// TODO add algorithm for changing actions based on probabilities
+		}
+		// If no ace, then only use probabilities
+		else
+		{
+			counter.calculate(total);
+
+			if (counter.probabilities[2] < DEF_BUST && tempAction == STAND)
+				tempAction = HIT;
+			else if (counter.probabilities[2] > DEF_BUST)
+				tempAction = STAND;
+		}
 
 		// Returns the decided action
 		return tempAction;
@@ -171,9 +198,7 @@ public class ActionSelector
 		int total = 0;
 
 		for (int card = 0; card < ai.myHand.size(); card++)
-		{
 			total += CARD_VALUES[ai.myHand.get(card).intValue()];
-		}
 
 		return total;
 	}
@@ -214,10 +239,43 @@ public class ActionSelector
 	}
 
 	/**
+	 * Determines max value in a hand with aces
+	 * @return
+	 */
+	protected int aceMax()
+	{
+		// Gets number of aces
+		int noOfAce = 0;
+		for (int card = 0; card < ai.myHand.size(); card++)
+		{
+			if (ai.myHand.get(card).intValue() == 1)
+				noOfAce++;
+		}
+
+		int tempTotal = total;
+		tempTotal -= noOfAce;
+
+		// Determines max value
+		if (tempTotal < 11)
+			tempTotal += 11;
+
+		// If anything was changed, return tempTotal, else return total
+		if (tempTotal != total)
+			return tempTotal;
+		return total;
+	}
+
+	private void firstCards()
+	{
+		for (int card = 0; card < ai.myHand.size(); card++)
+			counter.newCard(ai.myHand.get(card).intValue());
+	}
+
+	/**
 	 * Sends a dealt "hit" card to the counter to recalculate
 	 * @param cardDealt
 	 */
-	protected void cardDealt(int cardDealt)
+	private void cardDealt(int cardDealt)
 	{
 		counter.newCard(cardDealt);
 	}
