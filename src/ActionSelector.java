@@ -32,7 +32,7 @@ public class ActionSelector
 	 * Decides move based on the total value of the cards, references Felix's
 	 * part when probability is relevant
 	 */
-	public int decideFirstMove(boolean first)
+	public int decideMove(boolean first)
 	{
 		int tempAction = -1;
 
