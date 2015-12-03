@@ -109,7 +109,7 @@ public class CardCounter
 				{
 					averageBust += availableCards[card] / (totalCards * 1.0);
 				}
-				// Sets the probability of goinf byst to the calculated average
+				// Sets the probability of going bust to the calculated average
 				// probability
 				probabilities[BUST] = (averageBust / availableCards.length - leeway) * 100;
 			}
