@@ -144,7 +144,7 @@ public class ActionSelector
 			}
 		}
 
-		// Only total of cards is used to determine action
+		// Only total of cards is used to determine action if not first action
 		if (!firstTurn)
 		{
 			if (total < 9)
@@ -155,8 +155,9 @@ public class ActionSelector
 				tempAction = STAND;
 		}
 
-		
-		
+		// If an Ace is present, check for the highest possibility not going
+		// over 21 and check for probabilities
+
 		// Returns the decided action
 		return tempAction;
 	}
