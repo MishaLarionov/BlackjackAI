@@ -275,7 +275,7 @@ public class ActionSelector
 	 * Sends a dealt "hit" card to the counter to recalculate
 	 * @param cardDealt
 	 */
-	private void cardDealt(int cardDealt)
+	protected void cardDealt(int cardDealt)
 	{
 		counter.newCard(cardDealt);
 	}
