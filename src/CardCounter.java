@@ -9,8 +9,6 @@ public class CardCounter
 	// cards, as well as an array to store cards still in play
 	private int totalCards = 312;
 	private int[] availableCards = new int[13];
-	private AI ai;
-	private ActionSelector actionSelector;
 	protected double[] probabilities;
 	private final int UNDER = 0;
 	private final int PERFECT = 1;
@@ -23,12 +21,10 @@ public class CardCounter
 	 * @param actionSelector the ActionSeletor object to receive information
 	 *            from;
 	 */
-	protected CardCounter(AI ai, ActionSelector actionSelector)
+	protected CardCounter()
 	{
 		// Instantiates variables, fills up the availableCards array with 24 in
 		// each index
-		this.ai = ai;
-		this.actionSelector = actionSelector;
 		probabilities = new double[3];
 		for (int card = 0; card < 13; card++)
 		{
