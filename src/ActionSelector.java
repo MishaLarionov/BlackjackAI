@@ -150,9 +150,9 @@ public class ActionSelector
 	{
 		int total = 0;
 
-		for (int card = 0; card < ai.myCards.size(); card++)
+		for (int card = 0; card < ai.myHand.size(); card++)
 		{
-			total += CARD_VALUES[ai.myCards.get(card).intValue()];
+			total += CARD_VALUES[ai.myHand.get(card).intValue()];
 		}
 
 		return total;
@@ -164,8 +164,8 @@ public class ActionSelector
 	 */
 	protected boolean isAce()
 	{
-		for (int card = 0; card < ai.myCards.size(); card++)
-			if (ai.myCards.get(card).intValue() == 1)
+		for (int card = 0; card < ai.myHand.size(); card++)
+			if (ai.myHand.get(card).intValue() == 1)
 				return true;
 
 		return false;
@@ -179,9 +179,9 @@ public class ActionSelector
 	{
 		boolean[] oneCard = new boolean[14];
 
-		for (int card = 0; card < ai.myCards.size(); card++)
+		for (int card = 0; card < ai.myHand.size(); card++)
 		{
-			int cardAt = ai.myCards.get(card).intValue();
+			int cardAt = ai.myHand.get(card).intValue();
 
 			if (oneCard[cardAt])
 				return cardAt;
