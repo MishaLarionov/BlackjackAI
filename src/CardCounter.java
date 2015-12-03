@@ -100,22 +100,25 @@ public class CardCounter
 				else
 				{
 					probabilities[PERFECT] = (availableCards[leeway - 1] / (totalCards * 1.0)) * 100;
-				}
-				// Calculates the average probability of going bust (over 21),
-				// by adding up the probabilities of each card that would cause
-				// the bot to go bust, then averaging them
-				if (leeway < 10)
-				{
-					int cardsOver = 0;
-					for (int card = leeway; card < availableCards.length; card++)
+					// Calculates the average probability of going bust (over
+					// 21),
+					// by adding up the probabilities of each card that would
+					// cause
+					// the bot to go bust, then averaging them
+					if (leeway < 10)
 					{
-						cardsOver += availableCards[card];
+						int cardsOver = 0;
+						for (int card = leeway; card < availableCards.length; card++)
+						{
+							cardsOver += availableCards[card];
+						}
+						// Sets the probability of going bust to the calculated
+						// average
+						// probability
+						probabilities[BUST] = (cardsOver / (totalCards * 1.0)) * 100;
 					}
-					// Sets the probability of going bust to the calculated
-					// average
-					// probability
-					probabilities[BUST] = (cardsOver / (totalCards * 1.0)) * 100;
 				}
+
 			}
 		}
 
