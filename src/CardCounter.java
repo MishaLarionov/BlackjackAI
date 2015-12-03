@@ -66,7 +66,8 @@ public class CardCounter
 			// bust, and the probability of staying under is 100%
 			if (leeway == 11)
 			{
-				probabilities[PERFECT] = (availableCards[0] / (totalCards * 1.0)) * 100;
+				probabilities[PERFECT] = Math
+						.round((availableCards[0] / (totalCards * 1.0)) * 10000) / 100;
 				probabilities[UNDER] = 100;
 			}
 			else
@@ -81,7 +82,8 @@ public class CardCounter
 				}
 				// Sets the probability of staying under to the calculated
 				// average probability
-				probabilities[UNDER] = (cardsUnder / (totalCards * 1.0)) * 100;
+				probabilities[UNDER] = Math
+						.round((cardsUnder / (totalCards * 1.0)) * 10000) / 100;
 				// Should the leeway be 10, the probability of going bust is 0%
 				// (Aces will not be counted as 11's for logical reasons), and
 				// the probability of getting 21 is the probability of getting a
@@ -93,13 +95,15 @@ public class CardCounter
 					{
 						totalTens += availableCards[count];
 					}
-					probabilities[PERFECT] = (totalTens / (totalCards * 1.0)) * 100;
+					probabilities[PERFECT] = Math
+							.round((totalTens / (totalCards * 1.0)) * 10000) / 100;
 				}
 				// Otherwise, the probability of getting 21 is the chance of
 				// getting the card with the same value as the leeway
 				else
 				{
-					probabilities[PERFECT] = (availableCards[leeway - 1] / (totalCards * 1.0)) * 100;
+					probabilities[PERFECT] = Math
+							.round((availableCards[leeway - 1] / (totalCards * 1.0)) * 10000) / 100;
 					// Calculates the average probability of going bust (over
 					// 21),
 					// by adding up the probabilities of each card that would
@@ -115,13 +119,12 @@ public class CardCounter
 						// Sets the probability of going bust to the calculated
 						// average
 						// probability
-						probabilities[BUST] = (cardsOver / (totalCards * 1.0)) * 100;
+						probabilities[BUST] = Math
+								.round((cardsOver / (totalCards * 1.0)) * 10000) / 100;
 					}
 				}
-
 			}
 		}
-
 	}
 
 	/**
