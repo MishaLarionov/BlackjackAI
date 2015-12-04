@@ -30,13 +30,13 @@ public class ActionSelector
 		this.ai = ai;
 		counter = new CardCounter();
 	}
-	
+
 	/**
-	 * DEBUG
-	 * TODO think of a way to make this work!!!
+	 * DEBUG TODO think of a way to make this work!!!
 	 */
-	ActionSelector() {
-		
+	ActionSelector()
+	{
+
 	}
 
 	/**
@@ -171,7 +171,7 @@ public class ActionSelector
 
 		// Passes cards to cardcounter
 		if (firstTurn)
-		firstCards();
+			firstCards();
 
 		// If an Ace is present, check for the highest possibility not going
 		// over 21 and check for probabilities
@@ -180,7 +180,10 @@ public class ActionSelector
 			int maxValue = aceMax();
 			counter.calculate(maxValue);
 
-			// TODO add algorithm for changing actions based on probabilities
+			// If max value and chance of not going over is less than certain
+			// percentage, hit again
+			if (counter.probabilities[2] < DEF_BUST && tempAction == STAND)
+				tempAction = HIT;
 		}
 		// If no ace, then only use probabilities
 		else
