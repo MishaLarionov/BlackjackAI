@@ -81,6 +81,7 @@ public class BlackJackTester {
 				action = Character.toLowerCase(br.readLine().charAt(0));
 			else {
 				action = random.pickAction(myTotals);
+				System.out.println(action);
 			}
 
 			while (action == 'h') {
@@ -92,8 +93,10 @@ public class BlackJackTester {
 					System.out.println("What is your next move?");
 					if (!ai)
 						action = Character.toLowerCase(br.readLine().charAt(0));
-					else
+					else {
 						action = random.pickAction(myTotals);
+						System.out.println(action);
+					}
 				} else {
 					action = 'b';
 				}
@@ -220,17 +223,19 @@ public class BlackJackTester {
 	}
 
 	boolean playerWin() {
+		int myMax = 0;
 		for (int i = 0; i < myTotals.size(); i++) {
-			int myTot = myTotals.get(i);
-
-			for (int j = 0; j < dealerTotals.size(); j++) {
-				int dTot = dealerTotals.get(j);
-
-				if (dTot < myTot && myTot <= 21) {
-					return true;
-				}
-			}
+			if (myTotals.get(i) > myMax)
+				myMax = myTotals.get(i);
 		}
-		return false;
+		int dMax = 0;
+		for (int i = 0; i < dealerTotals.size(); i++) {
+			if (dealerTotals.get(i) > dMax)
+				dMax = dealerTotals.get(i);
+		}
+		if (dMax >= myMax)
+			return false;
+		else
+			return true;
 	}
 }

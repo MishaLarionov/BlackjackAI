@@ -5,7 +5,7 @@ class VinceRandomTester {
 	final static char STAND = 's';
 	final static char HIT = 'h';
 	
-	final static int THRESHOLD = 14;
+	final static int THRESHOLD = 17;
 	/*
 	 * THRESHOLD (win, loss):
 	 * 1- 46.8, 53.1
@@ -40,7 +40,7 @@ class VinceRandomTester {
 		int values = 0;
 
 		for (int i = 0; i < possTotals.size(); i++) {
-			if (possTotals.get(i) == 21)
+			if (possTotals.get(i) > THRESHOLD && possTotals.get(i) <= 21)
 				return STAND;
 			else if (possTotals.get(i) < 21) {
 				average += possTotals.get(i);
