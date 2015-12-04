@@ -10,10 +10,11 @@ public class BlackJackTester {
 	ArrayList<Integer> dHand = new ArrayList<Integer>();
 	int dealerFaceUp;
 	final int DECKS = 12;
-	final int GAMES = 1280;
+	final int GAMES = 2560;
 
 	int totalWins = 0;
 	int totalLosses = 0;
+	int totalDraws = 0;
 
 	ArrayList<Integer> myTotals;
 	ArrayList<Integer> dealerTotals;
@@ -35,9 +36,13 @@ public class BlackJackTester {
 			int[] temp = runSimulation(ai);
 			totalWins += temp[0];
 			totalLosses += temp[1];
+			totalDraws += temp[2];
 		}
 
-		System.out.println(totalWins + " " + totalLosses);
+		System.out.println(totalWins + " " + totalLosses + " " + totalDraws);
+		double total = totalWins + totalLosses;
+		System.out.println("Wins: " + (totalWins / total) + " Losses: "
+				+ (totalLosses / total) + " Draws: " + (totalDraws / total));
 	}
 
 	int[] runSimulation(boolean ai) throws IOException {
@@ -49,6 +54,7 @@ public class BlackJackTester {
 
 		int wins = 0;
 		int losses = 0;
+		int draws = 0;
 
 		if (ai) {
 			random = new VinceRandomTester();
@@ -122,13 +128,16 @@ public class BlackJackTester {
 				System.out.println("You busted.");
 				if (!totalsOverLimit(dealerTotals, 21))
 					losses++;
-				else
+				else {
 					System.out.println("Draw.");
+					draws++;
+				}
 			} else if (totalsOverLimit(dealerTotals, 21)) {
 				System.out.print("Dealer busted.");
-				if (action == 'b')
+				if (action == 'b') {
 					System.out.println("Draw.");
-				else {
+					draws++;
+				} else {
 					System.out.println("You win.");
 					wins++;
 				}
@@ -149,7 +158,7 @@ public class BlackJackTester {
 			dHand = new ArrayList<Integer>();
 		}
 
-		return new int[] { wins, losses };
+		return new int[] { wins, losses, draws };
 	}
 
 	int randomCard() {
