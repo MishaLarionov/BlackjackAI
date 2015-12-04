@@ -1,10 +1,10 @@
 /**
  * Chooses the move to make
+ * 
  * @author Felix, Iain, Vince
  *
  */
-public class ActionSelector
-{
+public class ActionSelector {
 	// Constants for returning decided action
 	protected static final int HIT = 0;
 	protected static final int STAND = 1;
@@ -14,7 +14,6 @@ public class ActionSelector
 			7, 8, 9, 10, 10, 10, 10 };
 
 	// AI reference, cardcounter
-	private AI ai;
 	private CardCounter counter;
 	protected static final double DEF_BUST = 30;
 	protected static final double OFF_BUST = 50;
@@ -25,26 +24,22 @@ public class ActionSelector
 	protected boolean isAce;
 	protected int isPair = 0;
 
-	protected ActionSelector(AI ai)
-	{
-		this.ai = ai;
+	// 1 is Ace, 11 is Jack, 12 is Queen, 13 is King
+	protected Hand myHand;
+	// Each index's possible value is 0-24
+	protected int[] playedCards = new int[13];
+	private Card dealerFaceUp;
+
+	protected ActionSelector() {
 		counter = new CardCounter();
-	}
-
-	/**
-	 * DEBUG TODO think of a way to make this work!!!
-	 */
-	ActionSelector()
-	{
-
+		myHand = new Hand();
 	}
 
 	/**
 	 * Decides move based on the total value of the cards, references Felix's
 	 * part when probability is relevant
 	 */
-	public int decideMove(boolean firstTurn)
-	{
+	public int decideMove(boolean firstTurn) {
 		int tempAction = NO_MOVE;
 
 		// Factors in determining basic action
@@ -58,40 +53,37 @@ public class ActionSelector
 			return STAND;
 
 		// Covers cheat sheet with first turn algorithms
-		if (firstTurn)
-		{
+		if (firstTurn) {
 			// Basic case with no aces or pairs
-			if (!isAce && isPair < 6)
-			{
+			if (!isAce && isPair < 6) {
 				// Guaranteed action
 				if (total < 9)
 					return HIT;
 
 				// Ambiguous actions, cardcounter referenced later
-				if (total == 9)
-				{
-					if (ai.dealerFaceUp > 2 && ai.dealerFaceUp < 7)
+				if (total == 9) {
+					if (dealerFaceUp.getValue() > 2
+							&& dealerFaceUp.getValue() < 7)
 						tempAction = DOUBLE;
 					else
 						tempAction = HIT;
 				}
-				if (total == 10)
-				{
-					if (ai.dealerFaceUp > 1 && ai.dealerFaceUp < 10)
+				if (total == 10) {
+					if (dealerFaceUp.getValue() > 1
+							&& dealerFaceUp.getValue() < 10)
 						tempAction = DOUBLE;
 					else
 						tempAction = HIT;
 				}
-				if (total == 11)
-				{
-					if (ai.dealerFaceUp != 1)
+				if (total == 11) {
+					if (dealerFaceUp.getValue() != 1)
 						tempAction = DOUBLE;
 					else
 						tempAction = HIT;
 				}
-				if (total == 12)
-				{
-					if (ai.dealerFaceUp > 3 && ai.dealerFaceUp < 7)
+				if (total == 12) {
+					if (dealerFaceUp.getValue() > 3
+							&& dealerFaceUp.getValue() < 7)
 						tempAction = STAND;
 					else
 						tempAction = HIT;
@@ -102,65 +94,58 @@ public class ActionSelector
 
 			// If an Ace was dealt, also covers ace pair as per the reference
 			// "cheat sheet"
-			else if (isAce)
-			{
+			else if (isAce) {
 				if (total == 2)
 					tempAction = HIT;
-				else if (total == 3 || total == 4)
-				{
-					if (ai.dealerFaceUp == 5 || ai.dealerFaceUp == 6)
+				else if (total == 3 || total == 4) {
+					if (dealerFaceUp.getValue() == 5
+							|| dealerFaceUp.getValue() == 6)
 						tempAction = DOUBLE;
 					else
 						tempAction = HIT;
-				}
-				else if (total == 5 || total == 6)
-				{
-					if (ai.dealerFaceUp > 3 && ai.dealerFaceUp < 7)
+				} else if (total == 5 || total == 6) {
+					if (dealerFaceUp.getValue() > 3
+							&& dealerFaceUp.getValue() < 7)
 						tempAction = DOUBLE;
 					else
 						tempAction = HIT;
-				}
-				else if (total == 7)
-				{
-					if (ai.dealerFaceUp > 2 && ai.dealerFaceUp < 7)
+				} else if (total == 7) {
+					if (dealerFaceUp.getValue() > 2
+							&& dealerFaceUp.getValue() < 7)
 						tempAction = DOUBLE;
 					else
 						tempAction = HIT;
-				}
-				else if (total == 8)
-				{
-					if (ai.dealerFaceUp > 2 && ai.dealerFaceUp < 7)
+				} else if (total == 8) {
+					if (dealerFaceUp.getValue() > 2
+							&& dealerFaceUp.getValue() < 7)
 						tempAction = DOUBLE;
-					else if (ai.dealerFaceUp == 2 || ai.dealerFaceUp == 7
-							|| ai.dealerFaceUp == 8)
+					else if (dealerFaceUp.getValue() == 2
+							|| dealerFaceUp.getValue() == 7
+							|| dealerFaceUp.getValue() == 8)
 						tempAction = STAND;
 					else
 						tempAction = HIT;
-				}
-				else if (total > 8)
+				} else if (total > 8)
 					tempAction = STAND;
 			}
 
 			// If a pair was dealt (non-aces)
-			else if (isPair > 5)
-			{
+			else if (isPair > 5) {
 				if (isPair > 5 && isPair < 9)
 					tempAction = HIT;
-				else if (isPair == 9)
-				{
-					if (ai.dealerFaceUp == 7 || ai.dealerFaceUp > 9)
+				else if (isPair == 9) {
+					if (dealerFaceUp.getValue() == 7
+							|| dealerFaceUp.getValue() > 9)
 						tempAction = STAND;
 					else
 						tempAction = HIT;
-				}
-				else
+				} else
 					return STAND;
 			}
 		}
 
 		// Only total of cards is used to determine action if not first action
-		if (!firstTurn)
-		{
+		if (!firstTurn) {
 			if (total < 9)
 				return HIT;
 			if (total < 12)
@@ -175,8 +160,7 @@ public class ActionSelector
 
 		// If an Ace is present, check for the highest possibility not going
 		// over 21 and check for probabilities
-		if (isAce)
-		{
+		if (isAce) {
 			int maxValue = aceMax();
 			counter.calculate(maxValue);
 
@@ -186,8 +170,7 @@ public class ActionSelector
 				tempAction = HIT;
 		}
 		// If no ace, then only use probabilities
-		else
-		{
+		else {
 			counter.calculate(total);
 
 			if (counter.probabilities[2] < DEF_BUST && tempAction == STAND)
@@ -202,26 +185,26 @@ public class ActionSelector
 
 	/**
 	 * Gets the total of all the cards
+	 * 
 	 * @return the total of all cards
 	 */
-	protected int getCardTotal()
-	{
+	protected int getCardTotal() {
 		int total = 0;
 
-		for (int card = 0; card < ai.myHand.size(); card++)
-			total += CARD_VALUES[ai.myHand.get(card).intValue()];
+		for (int card = 0; card < myHand.size(); card++)
+			total += CARD_VALUES[myHand.get(card).getValue()];
 
 		return total;
 	}
 
 	/**
 	 * Determines if there is an ace in the dealt cards
+	 * 
 	 * @return if there is an ace in the dealt cards
 	 */
-	protected boolean isAce()
-	{
-		for (int card = 0; card < ai.myHand.size(); card++)
-			if (ai.myHand.get(card).intValue() == 1)
+	protected boolean isAce() {
+		for (int card = 0; card < myHand.size(); card++)
+			if (myHand.get(card).getValue() == 1)
 				return true;
 
 		return false;
@@ -229,15 +212,14 @@ public class ActionSelector
 
 	/**
 	 * Determines if dealt a pair
+	 * 
 	 * @return if dealt a pair
 	 */
-	protected int isPair()
-	{
+	protected int isPair() {
 		boolean[] oneCard = new boolean[14];
 
-		for (int card = 0; card < ai.myHand.size(); card++)
-		{
-			int cardAt = ai.myHand.get(card).intValue();
+		for (int card = 0; card < myHand.size(); card++) {
+			int cardAt = myHand.get(card).getValue();
 
 			if (oneCard[cardAt])
 				return cardAt;
@@ -251,15 +233,14 @@ public class ActionSelector
 
 	/**
 	 * Determines max value in a hand with aces
+	 * 
 	 * @return
 	 */
-	protected int aceMax()
-	{
+	protected int aceMax() {
 		// Gets number of aces
 		int noOfAce = 0;
-		for (int card = 0; card < ai.myHand.size(); card++)
-		{
-			if (ai.myHand.get(card).intValue() == 1)
+		for (int card = 0; card < myHand.size(); card++) {
+			if (myHand.get(card).getValue() == 1)
 				noOfAce++;
 		}
 
@@ -276,18 +257,30 @@ public class ActionSelector
 		return total;
 	}
 
-	private void firstCards()
-	{
-		for (int card = 0; card < ai.myHand.size(); card++)
-			counter.newCard(ai.myHand.get(card).intValue());
+	private void firstCards() {
+		for (int cardIndex = 0; cardIndex < myHand.size(); cardIndex++)
+			counter.newCard(myHand.get(cardIndex));
 	}
 
 	/**
 	 * Sends a dealt "hit" card to the counter to recalculate
+	 * 
 	 * @param cardDealt
 	 */
-	protected void cardDealt(int cardDealt)
-	{
+	protected void cardDealt(Card cardDealt) {
 		counter.newCard(cardDealt);
+		addToMyHand(cardDealt);
+	}
+
+	protected void addToMyHand(Card newCard) {
+		myHand.add(newCard);
+	}
+
+	protected void setDealerCard(Card newCard) {
+		dealerFaceUp = newCard;
+	}
+
+	protected void cardPlayed(Card playedCard) {
+		playedCards[playedCard.getValue()]++;
 	}
 }

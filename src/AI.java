@@ -11,12 +11,7 @@ public class AI {
 	private PrintWriter serverWrite;
 	private BufferedReader serverRead;
 
-	// 1 is Ace, 11 is Jack, 12 is Queen, 13 is King
-	protected ArrayList<Integer> myHand = new ArrayList<Integer>();
-	// Each index's possible value is 0-24
-	protected int[] playedCards = new int[13];
 	protected short myCoins;
-	protected int dealerFaceUp;
 
 	private ActionSelector decision;
 	private int BET_AMOUNT = 1;
@@ -69,7 +64,7 @@ public class AI {
 				server.getInputStream()));
 		serverWrite = new PrintWriter(server.getOutputStream());
 
-		decision = new ActionSelector(this);
+		decision = new ActionSelector();
 
 		// Init connection w/ server
 		serverWrite.println("PLAY");
@@ -147,13 +142,14 @@ public class AI {
 				cardNum = parseCard(cardChar);
 
 				// If it's mine, add it to my own hand of cards
-				if (playerNum == myPlayerNumber)
-					myHand.add(cardNum);
-				else if (playerNum == 0)
-					dealerFaceUp = cardNum;
+				if (playerNum == myPlayerNumber) {
+					decision.addToMyHand(new Card(cardNum));
+				} else if (playerNum == 0) {
+					decision.setDealerCard(new Card(cardNum));
+				}
 
 				// Adds it to the played cards for counting purposes
-				decision.cardDealt(cardNum);
+				decision.cardDealt(new Card(cardNum));
 			}
 
 			// Gets the next deal from server
@@ -182,7 +178,7 @@ public class AI {
 		String remainingCards = serverRead.readLine();
 		while (remainingCards.startsWith("#")) {
 			String[] rCards = remainingCards.split(" ");
-			playedCards[Integer.parseInt(rCards[2])]++;
+			decision.cardPlayed(new Card(Integer.parseInt(rCards[2])));
 
 			if (serverRead.ready())
 				remainingCards = serverRead.readLine();
@@ -238,8 +234,8 @@ public class AI {
 			serverWrite.flush();
 			System.out.println("Sent hit to server");
 
-			decision.cardDealt(parseCard(serverRead.readLine().split(" ")[2]
-					.charAt(0)));
+			decision.cardDealt(new Card(parseCard(serverRead.readLine().split(
+					" ")[2].charAt(0))));
 
 			move = decision.decideMove(false);
 		}

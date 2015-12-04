@@ -1,12 +1,17 @@
 public class Card {
 
-	private byte value;
+	/* 1 is Ace, 2-10 are as normal, 11 is Jack, 12 is Queen, 13 is King */
+	private int value;
 
-	Card(byte value) {
+	Card(int value) {
 		this.value = value;
 	}
 
-	byte getValue() {
+	int getValue() {
 		return value;
+	}
+
+	public String toString() {
+		return value + "";
 	}
 }

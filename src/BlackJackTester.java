@@ -9,7 +9,7 @@ public class BlackJackTester {
 	ArrayList<Integer> myHand = new ArrayList<Integer>();
 	ArrayList<Integer> dHand = new ArrayList<Integer>();
 	int dealerFaceUp;
-	final int DECKS = 2560;
+	final int ROUNDS = 2560;
 
 	ArrayList<Double> totWins = new ArrayList<Double>();
 	ArrayList<Double> totLosses = new ArrayList<Double>();
@@ -52,7 +52,7 @@ public class BlackJackTester {
 		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
 
 		for (int i = 0; i < remainingCards.length; i++) {
-			remainingCards[i] = DECKS * 4;
+			remainingCards[i] = ROUNDS * 4;
 		}
 
 		int wins = 0;
@@ -63,7 +63,7 @@ public class BlackJackTester {
 			random = new VinceRandomTester();
 		}
 
-		for (int i = 0; i < DECKS; i++) {
+		for (int i = 0; i < ROUNDS; i++) {
 			myHand.add(randomCard());
 			myHand.add(randomCard());
 
@@ -72,7 +72,6 @@ public class BlackJackTester {
 			dealerFaceUp = dHand.get(0);
 
 			char action = (char) -1;
-			int move = -1;
 
 			myTotals = recalcTotals(myHand);
 			System.out.println("Your cards are: " + myHand
@@ -128,7 +127,7 @@ public class BlackJackTester {
 			} else if (myTotals.contains(21)) {
 				System.out.println("You blackjacked.");
 				wins++;
-				if (action == 'd' || move == ActionSelector.DOUBLE)
+				if (action == 'd')
 					wins++;
 			} else if (action == 'b') {
 				System.out.println("You busted.");
@@ -151,7 +150,7 @@ public class BlackJackTester {
 				System.out
 						.println("You have a higher value than dealer. You win.");
 				wins++;
-				if (action == 'd' || move == ActionSelector.DOUBLE)
+				if (action == 'd')
 					wins++;
 			} else {
 				System.out.println("Dealer wins.");
