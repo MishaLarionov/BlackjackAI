@@ -27,9 +27,7 @@ public class CardCounter
 		// each index
 		probabilities = new double[3];
 		for (int card = 0; card < 13; card++)
-		{
 			availableCards[card] = 24;
-		}
 	}
 
 	/**
@@ -49,12 +47,11 @@ public class CardCounter
 	{
 		// Finds the leeway that is available
 		int leeway = 21 - totalPoints;
+
 		// Should the leeway be greater that 11, the bot can never go bust or
 		// get 21, and will always stay under (100%)
 		if (leeway > 11)
-		{
 			probabilities[UNDER] = 100;
-		}
 		else
 		{
 			// If the leeway is exactly 11, the probability of getting 21 is
@@ -73,13 +70,13 @@ public class CardCounter
 				// bot to stay under 21, and then averaging them out
 				int cardsUnder = 0;
 				for (int card = 0; card < leeway - 1; card++)
-				{
 					cardsUnder += availableCards[card];
-				}
+
 				// Sets the probability of staying under to the calculated
 				// average probability
 				probabilities[UNDER] = Math
 						.round((cardsUnder / (totalCards * 1.0)) * 10000) / 100;
+
 				// Should the leeway be 10, the probability of going bust is 0%
 				// (Aces will not be counted as 11's for logical reasons), and
 				// the probability of getting 21 is the probability of getting a
@@ -88,9 +85,8 @@ public class CardCounter
 				{
 					int totalTens = 0;
 					for (int count = 9; count < 13; count++)
-					{
 						totalTens += availableCards[count];
-					}
+
 					probabilities[PERFECT] = Math
 							.round((totalTens / (totalCards * 1.0)) * 10000) / 100;
 				}
@@ -100,21 +96,18 @@ public class CardCounter
 				{
 					probabilities[PERFECT] = Math
 							.round((availableCards[leeway - 1] / (totalCards * 1.0)) * 10000) / 100;
+
 					// Calculates the average probability of going bust (over
-					// 21),
-					// by adding up the probabilities of each card that would
-					// cause
-					// the bot to go bust, then averaging them
+					// 21), by adding up the probabilities of each card that
+					// would cause the bot to go bust, then averaging them
 					if (leeway < 10)
 					{
 						int cardsOver = 0;
 						for (int card = leeway; card < availableCards.length; card++)
-						{
 							cardsOver += availableCards[card];
-						}
+
 						// Sets the probability of going bust to the calculated
-						// average
-						// probability
+						// average probability
 						probabilities[BUST] = Math
 								.round((cardsOver / (totalCards * 1.0)) * 10000) / 100;
 					}
@@ -130,10 +123,8 @@ public class CardCounter
 	protected void reset()
 	{
 		totalCards = 312;
-		for (int card = 0; card < 13; card++)
-		{
-			availableCards[card] = 24;
-		}
-	}
 
+		for (int card = 0; card < 13; card++)
+			availableCards[card] = 24;
+	}
 }
