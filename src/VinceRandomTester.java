@@ -5,7 +5,7 @@ class VinceRandomTester {
 	final static char STAND = 's';
 	final static char HIT = 'h';
 	
-	final static int THRESHOLD = 17;
+	static int THRESHOLD = 17;
 
 	VinceRandomTester() {
 

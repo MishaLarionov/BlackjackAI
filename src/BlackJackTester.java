@@ -9,12 +9,11 @@ public class BlackJackTester {
 	ArrayList<Integer> myHand = new ArrayList<Integer>();
 	ArrayList<Integer> dHand = new ArrayList<Integer>();
 	int dealerFaceUp;
-	final int DECKS = 12;
-	final int GAMES = 2560;
+	final int DECKS = 2560;
 
-	int totalWins = 0;
-	int totalLosses = 0;
-	int totalDraws = 0;
+	ArrayList<Double> totWins = new ArrayList<Double>();
+	ArrayList<Double> totLosses = new ArrayList<Double>();
+	ArrayList<Double> totTies = new ArrayList<Double>();
 
 	ArrayList<Integer> myTotals;
 	ArrayList<Integer> dealerTotals;
@@ -32,17 +31,20 @@ public class BlackJackTester {
 	}
 
 	BlackJackTester(boolean ai) throws IOException {
-		for (int i = 0; i < GAMES; i++) {
+		for (int thresh = 1; thresh < 21; thresh++) {
 			int[] temp = runSimulation(ai);
-			totalWins += temp[0];
-			totalLosses += temp[1];
-			totalDraws += temp[2];
+			double total = temp[0] + temp[1] + temp[2];
+			totWins.add(temp[0] / total);
+			totLosses.add(temp[1] / total);
+			totTies.add(temp[2] / total);
 		}
-
-		System.out.println(totalWins + " " + totalLosses + " " + totalDraws);
-		double total = totalWins + totalLosses;
-		System.out.println("Wins: " + (totalWins / total) + " Losses: "
-				+ (totalLosses / total) + " Draws: " + (totalDraws / total));
+		
+		for (int i = 0; i < totWins.size(); i++){
+			System.out.print(i + " ");
+			System.out.print(totWins.get(i) + " ");
+			System.out.print(totLosses.get(i) + " ");
+			System.out.println(totTies.get(i));
+		}
 	}
 
 	int[] runSimulation(boolean ai) throws IOException {
