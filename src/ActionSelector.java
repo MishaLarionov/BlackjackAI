@@ -20,7 +20,7 @@ public class ActionSelector {
 
 	// Variables in determining the move
 	protected int[] aceTotal;
-	protected int total;
+	protected ArrayList<Integer> total;
 	protected boolean isAce;
 	protected int isPair = 0;
 
@@ -39,13 +39,17 @@ public class ActionSelector {
 	 * Decides move based on the total value of the cards, references Felix's
 	 * part when probability is relevant
 	 */
-	public int decideMove(boolean firstTurn) {
+	public int decideMove() {
 		int tempAction = NO_MOVE;
 
 		// Factors in determining basic action
 		// isPair = 1 is irrelevant, case is covered in ace section
-		total = getCardTotal();
-		isAce = isAce();
+		total = myHand.recalcTotals();
+		if (total.size() == 1)
+			isAce = false;
+		else
+			isAce = true;
+		// TODO put this in an "if" bracket that only executes on first deal condition
 		isPair = isPair();
 
 		// If BlackJack, then ignore everything else and return stand
@@ -53,7 +57,7 @@ public class ActionSelector {
 			return STAND;
 
 		// Covers cheat sheet with first turn algorithms
-		if (firstTurn) {
+		if (myHand.size() == 2) {
 			// Basic case with no aces or pairs
 			if (!isAce && isPair < 6) {
 				// Guaranteed action
@@ -196,20 +200,7 @@ public class ActionSelector {
 
 		return total;
 	}
-
-	/**
-	 * Determines if there is an ace in the dealt cards
-	 * 
-	 * @return if there is an ace in the dealt cards
-	 */
-	protected boolean isAce() {
-		for (int card = 0; card < myHand.size(); card++)
-			if (myHand.get(card).getValue() == 1)
-				return true;
-
-		return false;
-	}
-
+	
 	/**
 	 * Determines if dealt a pair
 	 * 
