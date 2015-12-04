@@ -32,15 +32,16 @@ public class BlackJackTester {
 
 	BlackJackTester(boolean ai) throws IOException {
 		for (int thresh = 1; thresh < 21; thresh++) {
+			VinceRandomTester.THRESHOLD = thresh;
 			int[] temp = runSimulation(ai);
 			double total = temp[0] + temp[1] + temp[2];
 			totWins.add(temp[0] / total);
 			totLosses.add(temp[1] / total);
 			totTies.add(temp[2] / total);
 		}
-		
-		for (int i = 0; i < totWins.size(); i++){
-			System.out.print(i + " ");
+
+		for (int i = 0; i < totWins.size(); i++) {
+			System.out.print((i + 1) + " ");
 			System.out.print(totWins.get(i) + " ");
 			System.out.print(totLosses.get(i) + " ");
 			System.out.println(totTies.get(i));
@@ -227,12 +228,12 @@ public class BlackJackTester {
 	boolean playerWin() {
 		int myMax = 0;
 		for (int i = 0; i < myTotals.size(); i++) {
-			if (myTotals.get(i) > myMax)
+			if (myTotals.get(i) > myMax && myTotals.get(i) <= 21)
 				myMax = myTotals.get(i);
 		}
 		int dMax = 0;
 		for (int i = 0; i < dealerTotals.size(); i++) {
-			if (dealerTotals.get(i) > dMax)
+			if (dealerTotals.get(i) > dMax && dealerTotals.get(i) <= 21)
 				dMax = dealerTotals.get(i);
 		}
 		if (dMax >= myMax)
