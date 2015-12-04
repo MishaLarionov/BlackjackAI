@@ -9,14 +9,18 @@ public class BlackJackTester {
 	ArrayList<Integer> myHand = new ArrayList<Integer>();
 	ArrayList<Integer> dHand = new ArrayList<Integer>();
 	int dealerFaceUp;
+	final int DECKS = 12;
+	final int GAMES = 1280;
 
-	int wins = 0;
-	int losses = 0;
+	int totalWins = 0;
+	int totalLosses = 0;
 
 	ArrayList<Integer> myTotals;
 	ArrayList<Integer> dealerTotals;
 
-	static final boolean AI = false;
+	VinceRandomTester random;
+
+	static final boolean AI = true;
 
 	public static void main(String[] args) {
 		try {
@@ -26,15 +30,31 @@ public class BlackJackTester {
 		}
 	}
 
-	BlackJackTester(boolean user) throws IOException {
+	BlackJackTester(boolean ai) throws IOException {
+		for (int i = 0; i < GAMES; i++) {
+			int[] temp = runSimulation(ai);
+			totalWins += temp[0];
+			totalLosses += temp[1];
+		}
+
+		System.out.println(totalWins + " " + totalLosses);
+	}
+
+	int[] runSimulation(boolean ai) throws IOException {
 		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
 
 		for (int i = 0; i < remainingCards.length; i++) {
-			remainingCards[i] = 24;
+			remainingCards[i] = DECKS * 4;
 		}
 
-		while (true) {
+		int wins = 0;
+		int losses = 0;
 
+		if (ai) {
+			random = new VinceRandomTester();
+		}
+
+		for (int i = 0; i < DECKS; i++) {
 			myHand.add(randomCard());
 			myHand.add(randomCard());
 
@@ -45,23 +65,29 @@ public class BlackJackTester {
 			char action = (char) -1;
 			int move = -1;
 
-			// if (user) {
 			myTotals = recalcTotals(myHand);
 			System.out.println("Your cards are: " + myHand
 					+ " and your possible totals are " + myTotals);
 
 			System.out.println("The dealer is: " + dHand.get(0));
 			System.out.println("What is your move? (h/s/d)");
-			action = Character.toLowerCase(br.readLine().charAt(0));
+			if (!ai)
+				action = Character.toLowerCase(br.readLine().charAt(0));
+			else {
+				action = random.pickAction(myTotals);
+			}
 
 			while (action == 'h') {
 				myHand.add(randomCard());
 				myTotals = recalcTotals(myHand);
-				if (!totalsOverLimit(myTotals, 20)) {
+				if (!totalsOverLimit(myTotals, 21)) {
 					System.out.println("Your cards are: " + myHand
 							+ " and your possible totals are " + myTotals);
 					System.out.println("What is your next move?");
-					action = Character.toLowerCase(br.readLine().charAt(0));
+					if (!ai)
+						action = Character.toLowerCase(br.readLine().charAt(0));
+					else
+						action = random.pickAction(myTotals);
 				} else {
 					action = 'b';
 				}
@@ -72,25 +98,9 @@ public class BlackJackTester {
 				myHand.add(randomCard());
 				myTotals = recalcTotals(myHand);
 			}
-			// } else {
-			// ActionSelector decision = new ActionSelector();
-			// move = decision.decideMove(true);
-			// while (move == ActionSelector.HIT) {
-			// myHand.add(randomCard());
-			// if (totalOfHand(myHand) <= 23) {
-			// move = decision.decideMove(false);
-			// }
-			// }
-			//
-			// if (move == ActionSelector.DOUBLE) {
-			// myHand.add(randomCard());
-			// }
-			// }
-
-			// myTotals = recalcTotals(myHand);
 			dealerTotals = recalcTotals(dHand);
 
-			while (!totalsOverLimit(dealerTotals, 16)) {
+			while (!anyOverLimit(dealerTotals, 16)) {
 				dHand.add(randomCard());
 				dealerTotals = recalcTotals(dHand);
 			}
@@ -110,7 +120,10 @@ public class BlackJackTester {
 					wins++;
 			} else if (action == 'b') {
 				System.out.println("You busted.");
-				losses++;
+				if (!totalsOverLimit(dealerTotals, 21))
+					losses++;
+				else
+					System.out.println("Draw.");
 			} else if (totalsOverLimit(dealerTotals, 21)) {
 				System.out.print("Dealer busted.");
 				if (action == 'b')
@@ -135,6 +148,8 @@ public class BlackJackTester {
 			myHand = new ArrayList<Integer>();
 			dHand = new ArrayList<Integer>();
 		}
+
+		return new int[] { wins, losses };
 	}
 
 	int randomCard() {
@@ -172,7 +187,7 @@ public class BlackJackTester {
 			// Special case for aces
 			if (card == 1) {
 				for (int j = possibleTotals.size() - 1; j >= 0; j--) {
-					possibleTotals.add(possibleTotals.get(j) + 11);
+					possibleTotals.add(possibleTotals.get(j) + 10);
 				}
 			}
 		}
@@ -185,6 +200,14 @@ public class BlackJackTester {
 				return false;
 		}
 		return true;
+	}
+
+	boolean anyOverLimit(ArrayList<Integer> arrayL, int limit) {
+		for (int i = 0; i < arrayL.size(); i++) {
+			if (arrayL.get(i) > limit)
+				return true;
+		}
+		return false;
 	}
 
 	boolean playerWin() {
