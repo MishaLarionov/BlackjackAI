@@ -9,7 +9,9 @@ public class BlackJackTester {
 	ArrayList<Integer> myHand = new ArrayList<Integer>();
 	ArrayList<Integer> dHand = new ArrayList<Integer>();
 	int dealerFaceUp;
-	final int ROUNDS = 2560;
+	final int ROUNDS = 5120000;
+
+	final static boolean SHOW_DEBUG_TEXT = false;
 
 	ArrayList<Double> totWins = new ArrayList<Double>();
 	ArrayList<Double> totLosses = new ArrayList<Double>();
@@ -42,9 +44,9 @@ public class BlackJackTester {
 
 		for (int i = 0; i < totWins.size(); i++) {
 			System.out.print((i + 1) + " ");
-			System.out.print(totWins.get(i) + " ");
-			System.out.print(totLosses.get(i) + " ");
-			System.out.println(totTies.get(i));
+			System.out.printf("%.5f ", totWins.get(i));
+			System.out.printf("%.5f ", totLosses.get(i));
+			System.out.printf("%.5f\n", totTies.get(i));
 		}
 	}
 
@@ -74,30 +76,36 @@ public class BlackJackTester {
 			char action = (char) -1;
 
 			myTotals = recalcTotals(myHand);
-			System.out.println("Your cards are: " + myHand
-					+ " and your possible totals are " + myTotals);
+			if (SHOW_DEBUG_TEXT) {
+				System.out.println("Your cards are: " + myHand
+						+ " and your possible totals are " + myTotals);
 
-			System.out.println("The dealer is: " + dHand.get(0));
-			System.out.println("What is your move? (h/s/d)");
+				System.out.println("The dealer is: " + dHand.get(0));
+				System.out.println("What is your move? (h/s/d)");
+			}
 			if (!ai)
 				action = Character.toLowerCase(br.readLine().charAt(0));
 			else {
 				action = random.pickAction(myTotals);
-				System.out.println(action);
+				if (SHOW_DEBUG_TEXT)
+					System.out.println(action);
 			}
 
 			while (action == 'h') {
 				myHand.add(randomCard());
 				myTotals = recalcTotals(myHand);
 				if (!totalsOverLimit(myTotals, 21)) {
-					System.out.println("Your cards are: " + myHand
-							+ " and your possible totals are " + myTotals);
-					System.out.println("What is your next move?");
+					if (SHOW_DEBUG_TEXT) {
+						System.out.println("Your cards are: " + myHand
+								+ " and your possible totals are " + myTotals);
+						System.out.println("What is your next move?");
+					}
 					if (!ai)
 						action = Character.toLowerCase(br.readLine().charAt(0));
 					else {
 						action = random.pickAction(myTotals);
-						System.out.println(action);
+						if (SHOW_DEBUG_TEXT)
+							System.out.println(action);
 					}
 				} else {
 					action = 'b';
@@ -116,48 +124,61 @@ public class BlackJackTester {
 				dealerTotals = recalcTotals(dHand);
 			}
 
-			System.out.println("Dealer's cards are: " + dHand
-					+ " and their possible totals are " + dealerTotals);
-			System.out.println("Your cards are: " + myHand
-					+ " and your possible totals are " + myTotals);
+			if (SHOW_DEBUG_TEXT) {
+				System.out.println("Dealer's cards are: " + dHand
+						+ " and their possible totals are " + dealerTotals);
+				System.out.println("Your cards are: " + myHand
+						+ " and your possible totals are " + myTotals);
+			}
 
 			if (dealerTotals.contains(21)) {
-				System.out.println("dealer blackjacked.");
+				if (SHOW_DEBUG_TEXT)
+					System.out.println("dealer blackjacked.");
 				losses++;
 			} else if (myTotals.contains(21)) {
-				System.out.println("You blackjacked.");
+				if (SHOW_DEBUG_TEXT)
+					System.out.println("You blackjacked.");
 				wins++;
 				if (action == 'd')
 					wins++;
 			} else if (action == 'b') {
-				System.out.println("You busted.");
+				if (SHOW_DEBUG_TEXT)
+					System.out.println("You busted.");
 				if (!totalsOverLimit(dealerTotals, 21))
 					losses++;
 				else {
-					System.out.println("Draw.");
+					if (SHOW_DEBUG_TEXT)
+						System.out.println("Draw.");
 					draws++;
 				}
 			} else if (totalsOverLimit(dealerTotals, 21)) {
-				System.out.print("Dealer busted.");
+				if (SHOW_DEBUG_TEXT)
+					System.out.print("Dealer busted.");
 				if (action == 'b') {
-					System.out.println("Draw.");
+					if (SHOW_DEBUG_TEXT)
+						System.out.println("Draw.");
 					draws++;
 				} else {
-					System.out.println("You win.");
+					if (SHOW_DEBUG_TEXT)
+						System.out.println("You win.");
 					wins++;
 				}
 			} else if (playerWin()) {
-				System.out
-						.println("You have a higher value than dealer. You win.");
+				if (SHOW_DEBUG_TEXT)
+					System.out.println("You have a higher "
+							+ "value than dealer. You win.");
 				wins++;
 				if (action == 'd')
 					wins++;
 			} else {
-				System.out.println("Dealer wins.");
+				if (SHOW_DEBUG_TEXT)
+					System.out.println("Dealer wins.");
 				losses++;
 			}
 
-			System.out.println("Wins: " + wins + " Losses: " + losses + "\n\n");
+			if (SHOW_DEBUG_TEXT)
+				System.out.println("Wins: " + wins + " Losses: " + losses
+						+ "\n\n");
 
 			myHand = new ArrayList<Integer>();
 			dHand = new ArrayList<Integer>();

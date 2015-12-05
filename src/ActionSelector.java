@@ -250,6 +250,6 @@ public class ActionSelector {
 	}
 
 	protected void resetCardCounter() {
-		counter.reset();
+		counter.resetCounter();
 	}
 }

@@ -9,7 +9,8 @@ import java.util.Arrays;
 public class CardCounter {
 	// Initializes variables, important ones including the total number of
 	// cards, as well as an array to store cards still in play
-	private int totalCards = 312;
+	private final static int DECKS = 6;
+	private int totalCards = 52 * DECKS;
 	private int[] availableCards = new int[13];
 	private double[] probabilities;
 	final static int UNDER = 0;
@@ -24,14 +25,14 @@ public class CardCounter {
 		// Instantiates variables, fills up the availableCards array with 24 in
 		// each index
 		probabilities = new double[3];
-		for (int card = 0; card < 13; card++)
-			availableCards[card] = 24;
+		resetCounter();
 	}
 
 	/**
 	 * Updates the availableCards array with cards dealt by the dealer
 	 * 
-	 * @param card the card
+	 * @param card
+	 *            the card
 	 */
 	protected void newCard(Card card) {
 		availableCards[card.getValue() - 1]--;
@@ -95,8 +96,8 @@ public class CardCounter {
 	 * A method that allows the total number of cards and the availableCards
 	 * array to be rest to their original values
 	 */
-	protected void reset() {
-		totalCards = 312;
+	protected void resetCounter() {
+		totalCards = DECKS * 52;
 
 		for (int card = 0; card < 13; card++)
 			availableCards[card] = 24;

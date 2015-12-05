@@ -6,7 +6,8 @@ public class BlackJackTesterReal {
 	int[] remainingCards = new int[13];
 	Hand myHand = new Hand();
 	Hand dealerHand = new Hand();
-	private static final int ROUNDS = 5120000;
+	private static final int ROUNDS = 50000000;
+	private static final int DECKS = 6;
 
 	final static boolean SHOW_DEBUG_TEXT = false;
 
@@ -29,9 +30,9 @@ public class BlackJackTesterReal {
 	}
 
 	BlackJackTesterReal() throws IOException {
-		for (double underThresh = 0.15; underThresh < 0.75; underThresh += 0.04) {
+		for (double underThresh = 0.1; underThresh < 0.8; underThresh += 0.05) {
 			ActionSelector.UNDER_THRESH = underThresh;
-			for (double bustThresh = 0.15; bustThresh < 0.5; bustThresh += 0.04) {
+			for (double bustThresh = 0.1; bustThresh < 0.8; bustThresh += 0.05) {
 				ActionSelector.BUST_THRESH = bustThresh;
 				int[] temp = runSimulation();
 				double total = temp[0] + temp[1] + temp[2];
@@ -65,9 +66,7 @@ public class BlackJackTesterReal {
 	}
 
 	int[] runSimulation() throws IOException {
-		for (int i = 0; i < remainingCards.length; i++) {
-			remainingCards[i] = ROUNDS * 4;
-		}
+		shuffle();
 
 		int wins = 0;
 		int losses = 0;
@@ -75,7 +74,7 @@ public class BlackJackTesterReal {
 
 		selector = new ActionSelector();
 
-		for (int roundNo = 0; roundNo < (int) (ROUNDS / 4); roundNo++) {
+		for (int roundNo = 0; roundNo < ROUNDS; roundNo++) {
 			selector.resetHand();
 			for (int j = 0; j < 2; j++) {
 				Card dealt = randomCard();
@@ -151,8 +150,6 @@ public class BlackJackTesterReal {
 
 			if (action == 'd') {
 				myHand.add(randomCard());
-				// TODO add something for double down so that when you win, it's
-				// counted as two wins
 			}
 
 			while (!anyOverLimit(dealerHand.recalcTotals(), 16)) {
@@ -222,8 +219,10 @@ public class BlackJackTesterReal {
 			myHand = new Hand();
 			dealerHand = new Hand();
 
-			if (roundNo % 10 == 0)
+			if (cardsInDeck() < DECKS * 26) {
+				shuffle();
 				selector.resetCardCounter();
+			}
 		}
 
 		return new int[] { wins, losses, draws };
@@ -273,5 +272,19 @@ public class BlackJackTesterReal {
 			return false;
 		else
 			return true;
+	}
+
+	int cardsInDeck() {
+		int remaining = 0;
+		for (int i : remainingCards) {
+			remaining += i;
+		}
+		return remaining;
+	}
+
+	void shuffle() {
+		for (int i = 0; i < remainingCards.length; i++) {
+			remainingCards[i] = 4 * DECKS;
+		}
 	}
 }
