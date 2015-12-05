@@ -5,8 +5,10 @@ public class BlackJackTesterReal {
 
 	int[] remainingCards = new int[13];
 	Hand myHand = new Hand();
-	Hand dHand = new Hand();
-	final int ROUNDS = 2560;
+	Hand dealerHand = new Hand();
+	private static final int ROUNDS = 5120000;
+
+	final static boolean SHOW_DEBUG_TEXT = false;
 
 	ArrayList<Double> underThreshes = new ArrayList<Double>();
 	ArrayList<Double> bustThreshes = new ArrayList<Double>();
@@ -44,11 +46,22 @@ public class BlackJackTesterReal {
 
 		for (int i = 0; i < underThreshes.size(); i++) {
 			System.out.printf("%.3f ", underThreshes.get(i));
-			System.out.printf("%.3f ", bustThreshes.get(i) );
+			System.out.printf("%.3f ", bustThreshes.get(i));
 			System.out.printf("%.5f ", totWins.get(i));
 			System.out.printf("%.5f ", totLosses.get(i));
 			System.out.printf("%.5f\n", totTies.get(i));
 		}
+
+		// For running a single set of numbers
+		// int[] temp = runSimulation();
+		// double total = temp[0] + temp[1] + temp[2];
+		// totWins.add(temp[0] / total);
+		// totLosses.add(temp[1] / total);
+		// totTies.add(temp[2] / total);
+		// System.out.printf("%.5f ", totWins.get(0));
+		// System.out.printf("%.5f ", totLosses.get(0));
+		// System.out.printf("%.5f\n", totTies.get(0));
+
 	}
 
 	int[] runSimulation() throws IOException {
@@ -72,19 +85,21 @@ public class BlackJackTesterReal {
 
 			for (int j = 0; j < 2; j++) {
 				Card dealt = randomCard();
-				dHand.add(dealt);
+				dealerHand.add(dealt);
 			}
-			selector.setDealerCard(dHand.get(0));
+			selector.setDealerCard(dealerHand.get(0));
 
 			char action = (char) -1;
 			int actionInt = -1;
 
 			ArrayList<Integer> myTotal = myHand.recalcTotals();
-			System.out.println("Your cards are: " + myHand
-					+ " and your possible totals are " + myTotal);
+			if (SHOW_DEBUG_TEXT) {
+				System.out.println("Your cards are: " + myHand
+						+ " and your possible totals are " + myTotal);
 
-			System.out.println("The dealer is: " + dHand.get(0));
-			System.out.println("What is your move? (h/s/d)");
+				System.out.println("The dealer is: " + dealerHand.get(0));
+				System.out.println("What is your move? (h/s/d)");
+			}
 
 			actionInt = selector.decideMove(true);
 			switch (actionInt) {
@@ -98,7 +113,8 @@ public class BlackJackTesterReal {
 				action = 's';
 				break;
 			}
-			System.out.println(action);
+			if (SHOW_DEBUG_TEXT)
+				System.out.println(action);
 
 			while (action == 'h') {
 				Card randomCard = randomCard();
@@ -106,9 +122,11 @@ public class BlackJackTesterReal {
 				selector.addToMyHand(randomCard);
 				myTotal = myHand.recalcTotals();
 				if (!totalsOverLimit(myTotal, 21)) {
-					System.out.println("Your cards are: " + myHand
-							+ " and your possible totals are " + myTotal);
-					System.out.println("What is your next move?");
+					if (SHOW_DEBUG_TEXT) {
+						System.out.println("Your cards are: " + myHand
+								+ " and your possible totals are " + myTotal);
+						System.out.println("What is your next move?");
+					}
 
 					actionInt = selector.decideMove(false);
 					switch (actionInt) {
@@ -122,7 +140,8 @@ public class BlackJackTesterReal {
 						action = 's';
 						break;
 					}
-					System.out.println(action);
+					if (SHOW_DEBUG_TEXT)
+						System.out.println(action);
 
 				} else {
 					action = 'b';
@@ -136,57 +155,72 @@ public class BlackJackTesterReal {
 				// counted as two wins
 			}
 
-			while (!anyOverLimit(dHand.recalcTotals(), 16)) {
-				dHand.add(randomCard());
+			while (!anyOverLimit(dealerHand.recalcTotals(), 16)) {
+				dealerHand.add(randomCard());
 			}
 
-			System.out.println("Dealer's cards are: " + dHand
-					+ " and their possible totals are " + dHand.recalcTotals());
-			System.out.println("Your cards are: " + myHand
-					+ " and your possible totals are " + myHand.recalcTotals());
+			if (SHOW_DEBUG_TEXT) {
+				System.out.println("Dealer's cards are: " + dealerHand
+						+ " and their possible totals are "
+						+ dealerHand.recalcTotals());
+				System.out.println("Your cards are: " + myHand
+						+ " and your possible totals are "
+						+ myHand.recalcTotals());
+			}
 
-			ArrayList<Integer> dealerTotal = dHand.recalcTotals();
+			ArrayList<Integer> dealerTotal = dealerHand.recalcTotals();
 			myTotal = myHand.recalcTotals();
 			if (dealerTotal.contains(21)) {
-				System.out.println("dealer blackjacked.");
+				if (SHOW_DEBUG_TEXT)
+					System.out.println("dealer blackjacked.");
 				losses++;
 			} else if (myTotal.contains(21)) {
-				System.out.println("You blackjacked.");
+				if (SHOW_DEBUG_TEXT)
+					System.out.println("You blackjacked.");
 				wins++;
 				if (action == 'd')
 					wins++;
 			} else if (action == 'b') {
-				System.out.println("You busted.");
+				if (SHOW_DEBUG_TEXT)
+					System.out.println("You busted.");
 				if (!totalsOverLimit(dealerTotal, 21))
 					losses++;
 				else {
-					System.out.println("Draw.");
+					if (SHOW_DEBUG_TEXT)
+						System.out.println("Draw.");
 					draws++;
 				}
 			} else if (totalsOverLimit(dealerTotal, 21)) {
-				System.out.print("Dealer busted.");
+				if (SHOW_DEBUG_TEXT)
+					System.out.print("Dealer busted.");
 				if (action == 'b') {
-					System.out.println("Draw.");
+					if (SHOW_DEBUG_TEXT)
+
+						System.out.println("Draw.");
 					draws++;
 				} else {
-					System.out.println("You win.");
+					if (SHOW_DEBUG_TEXT)
+						System.out.println("You win.");
 					wins++;
 				}
 			} else if (playerWin()) {
-				System.out
-						.println("You have a higher value than dealer. You win.");
+				if (SHOW_DEBUG_TEXT)
+					System.out.println("You have a higher "
+							+ "value than dealer. You win.");
 				wins++;
 				if (action == 'd')
 					wins++;
 			} else {
-				System.out.println("Dealer wins.");
+				if (SHOW_DEBUG_TEXT)
+					System.out.println("Dealer wins.");
 				losses++;
 			}
-
-			System.out.println("Wins: " + wins + " Losses: " + losses + "\n\n");
+			if (SHOW_DEBUG_TEXT)
+				System.out.println("Wins: " + wins + " Losses: " + losses
+						+ "\n\n");
 
 			myHand = new Hand();
-			dHand = new Hand();
+			dealerHand = new Hand();
 
 			if (roundNo % 10 == 0)
 				selector.resetCardCounter();
@@ -224,7 +258,7 @@ public class BlackJackTesterReal {
 	boolean playerWin() {
 		int myMax = 0;
 		ArrayList<Integer> myTotal = myHand.recalcTotals();
-		ArrayList<Integer> dealerTotal = dHand.recalcTotals();
+		ArrayList<Integer> dealerTotal = dealerHand.recalcTotals();
 
 		for (int i = 0; i < myTotal.size(); i++) {
 			if (myTotal.get(i) > myMax && myTotal.get(i) <= 21)

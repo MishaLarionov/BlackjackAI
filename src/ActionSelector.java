@@ -17,9 +17,9 @@ public class ActionSelector {
 			7, 8, 9, 10, 10, 10, 10 };
 
 	// Probability of going under has to be greater than threshold to hit
-	static double UNDER_THRESH = 0.4;
+	static double UNDER_THRESH = 0.19;
 	// Prob. of going bust must be less than thresh. to hit
-	static double BUST_THRESH = 0.4;
+	static double BUST_THRESH = 0.43;
 	// If blackjacking probability is greater than this, it'll play hit
 	// regardless
 	static double PERF_THRESH = 0.75;
@@ -106,9 +106,11 @@ public class ActionSelector {
 			perfectProb /= totals.size();
 			bustProb /= totals.size();
 
-			System.out.println("The perfect prob is: " + perfectProb);
-			System.out.println("The bust prob is: " + bustProb);
-			System.out.println("The under prob is: " + underProb);
+			if (BlackJackTesterReal.SHOW_DEBUG_TEXT) {
+				System.out.println("The perfect prob is: " + perfectProb);
+				System.out.println("The bust prob is: " + bustProb);
+				System.out.println("The under prob is: " + underProb);
+			}
 			if (perfectProb > PERF_THRESH
 					|| (underProb > UNDER_THRESH && bustProb < BUST_THRESH))
 				return HIT;
