@@ -7,8 +7,9 @@ public class BlackJackTesterReal {
 	Hand myHand = new Hand();
 	Hand dHand = new Hand();
 	final int ROUNDS = 2560;
-	final int GAMES = 2560;
 
+	ArrayList<Double> underThreshes = new ArrayList<Double>();
+	ArrayList<Double> bustThreshes = new ArrayList<Double>();
 	ArrayList<Double> totWins = new ArrayList<Double>();
 	ArrayList<Double> totLosses = new ArrayList<Double>();
 	ArrayList<Double> totTies = new ArrayList<Double>();
@@ -16,27 +17,37 @@ public class BlackJackTesterReal {
 	ActionSelector selector;
 
 	public static void main(String[] args) {
+		long start = System.currentTimeMillis();
 		try {
 			new BlackJackTesterReal();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+		System.out.println(System.currentTimeMillis() - start + " millis");
 	}
 
 	BlackJackTesterReal() throws IOException {
-		for (int thresh = 0; thresh < GAMES; thresh++) {
-			int[] temp = runSimulation();
-			double total = temp[0] + temp[1] + temp[2];
-			totWins.add(temp[0] / total);
-			totLosses.add(temp[1] / total);
-			totTies.add(temp[2] / total);
+		for (double underThresh = 0.15; underThresh < 0.75; underThresh += 0.04) {
+			ActionSelector.UNDER_THRESH = underThresh;
+			for (double bustThresh = 0.15; bustThresh < 0.5; bustThresh += 0.04) {
+				ActionSelector.BUST_THRESH = bustThresh;
+				int[] temp = runSimulation();
+				double total = temp[0] + temp[1] + temp[2];
+				underThreshes.add(underThresh);
+				bustThreshes.add(bustThresh);
+				totWins.add(temp[0] / total);
+				totLosses.add(temp[1] / total);
+				totTies.add(temp[2] / total);
+			}
+
 		}
 
-		for (int i = 0; i < totWins.size(); i++) {
-			System.out.print((i + 1) + " ");
-			System.out.print(totWins.get(i) + " ");
-			System.out.print(totLosses.get(i) + " ");
-			System.out.println(totTies.get(i));
+		for (int i = 0; i < underThreshes.size(); i++) {
+			System.out.printf("%.3f ", underThreshes.get(i));
+			System.out.printf("%.3f ", bustThreshes.get(i) );
+			System.out.printf("%.5f ", totWins.get(i));
+			System.out.printf("%.5f ", totLosses.get(i));
+			System.out.printf("%.5f\n", totTies.get(i));
 		}
 	}
 
@@ -51,11 +62,12 @@ public class BlackJackTesterReal {
 
 		selector = new ActionSelector();
 
-		for (int i = 0; i < ROUNDS; i++) {
+		for (int roundNo = 0; roundNo < (int) (ROUNDS / 4); roundNo++) {
+			selector.resetHand();
 			for (int j = 0; j < 2; j++) {
 				Card dealt = randomCard();
 				myHand.add(dealt);
-				selector.cardDealt(dealt);
+				selector.addToMyHand(dealt);
 			}
 
 			for (int j = 0; j < 2; j++) {
@@ -89,7 +101,9 @@ public class BlackJackTesterReal {
 			System.out.println(action);
 
 			while (action == 'h') {
-				myHand.add(randomCard());
+				Card randomCard = randomCard();
+				myHand.add(randomCard);
+				selector.addToMyHand(randomCard);
 				myTotal = myHand.recalcTotals();
 				if (!totalsOverLimit(myTotal, 21)) {
 					System.out.println("Your cards are: " + myHand
@@ -173,6 +187,9 @@ public class BlackJackTesterReal {
 
 			myHand = new Hand();
 			dHand = new Hand();
+
+			if (roundNo % 10 == 0)
+				selector.resetCardCounter();
 		}
 
 		return new int[] { wins, losses, draws };

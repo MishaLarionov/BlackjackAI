@@ -1,3 +1,6 @@
+import java.util.ArrayList;
+import java.util.Collections;
+
 /**
  * Chooses the move to make
  * 
@@ -13,18 +16,23 @@ public class ActionSelector {
 	protected static final int[] CARD_VALUES = new int[] { 0, 1, 2, 3, 4, 5, 6,
 			7, 8, 9, 10, 10, 10, 10 };
 
+	// Probability of going under has to be greater than threshold to hit
+	static double UNDER_THRESH = 0.4;
+	// Prob. of going bust must be less than thresh. to hit
+	static double BUST_THRESH = 0.4;
+	// If blackjacking probability is greater than this, it'll play hit
+	// regardless
+	static double PERF_THRESH = 0.75;
+
 	// AI reference, cardcounter
 	private CardCounter counter;
-	protected static final double DEF_BUST = 30;
-	protected static final double OFF_BUST = 50;
+	// protected static final double DEF_BUST = 30;
+	// protected static final double OFF_BUST = 50;
 
 	// Variables in determining the move
-	protected int[] aceTotal;
-	protected ArrayList<Integer> total;
-	protected boolean isAce;
-	protected int isPair = 0;
+	protected ArrayList<Integer> totals;
+	protected boolean hasAce;
 
-	// 1 is Ace, 11 is Jack, 12 is Queen, 13 is King
 	protected Hand myHand;
 	// Each index's possible value is 0-24
 	protected int[] playedCards = new int[13];
@@ -39,232 +47,174 @@ public class ActionSelector {
 	 * Decides move based on the total value of the cards, references Felix's
 	 * part when probability is relevant
 	 */
-	public int decideMove() {
-		int tempAction = NO_MOVE;
+	public int decideMove(boolean firstMove) {
+		// int tempAction = NO_MOVE;
 
 		// Factors in determining basic action
-		// isPair = 1 is irrelevant, case is covered in ace section
-		total = myHand.recalcTotals();
-		if (total.size() == 1)
-			isAce = false;
-		else
-			isAce = true;
-		// TODO put this in an "if" bracket that only executes on first deal condition
-		isPair = isPair();
+		totals = myHand.recalcTotals();
+		cleanUpTotals();
+		Collections.sort(totals);
 
-		// If BlackJack, then ignore everything else and return stand
-		if (total == 21 || (total == 11 && isAce))
+		// if (totals.size() == 1)
+		// hasAce = false;
+		// else
+		// hasAce = true;
+
+		if (totalContainsAny(new int[] { 21, 20, 19, 18 }))
 			return STAND;
 
-		// Covers cheat sheet with first turn algorithms
-		if (myHand.size() == 2) {
-			// Basic case with no aces or pairs
-			if (!isAce && isPair < 6) {
-				// Guaranteed action
-				if (total < 9)
-					return HIT;
-
-				// Ambiguous actions, cardcounter referenced later
-				if (total == 9) {
-					if (dealerFaceUp.getValue() > 2
-							&& dealerFaceUp.getValue() < 7)
-						tempAction = DOUBLE;
-					else
-						tempAction = HIT;
-				}
-				if (total == 10) {
-					if (dealerFaceUp.getValue() > 1
-							&& dealerFaceUp.getValue() < 10)
-						tempAction = DOUBLE;
-					else
-						tempAction = HIT;
-				}
-				if (total == 11) {
-					if (dealerFaceUp.getValue() != 1)
-						tempAction = DOUBLE;
-					else
-						tempAction = HIT;
-				}
-				if (total == 12) {
-					if (dealerFaceUp.getValue() > 3
-							&& dealerFaceUp.getValue() < 7)
-						tempAction = STAND;
-					else
-						tempAction = HIT;
-				}
-				if (total > 17)
-					tempAction = STAND;
-			}
-
-			// If an Ace was dealt, also covers ace pair as per the reference
-			// "cheat sheet"
-			else if (isAce) {
-				if (total == 2)
-					tempAction = HIT;
-				else if (total == 3 || total == 4) {
-					if (dealerFaceUp.getValue() == 5
-							|| dealerFaceUp.getValue() == 6)
-						tempAction = DOUBLE;
-					else
-						tempAction = HIT;
-				} else if (total == 5 || total == 6) {
-					if (dealerFaceUp.getValue() > 3
-							&& dealerFaceUp.getValue() < 7)
-						tempAction = DOUBLE;
-					else
-						tempAction = HIT;
-				} else if (total == 7) {
-					if (dealerFaceUp.getValue() > 2
-							&& dealerFaceUp.getValue() < 7)
-						tempAction = DOUBLE;
-					else
-						tempAction = HIT;
-				} else if (total == 8) {
-					if (dealerFaceUp.getValue() > 2
-							&& dealerFaceUp.getValue() < 7)
-						tempAction = DOUBLE;
-					else if (dealerFaceUp.getValue() == 2
-							|| dealerFaceUp.getValue() == 7
-							|| dealerFaceUp.getValue() == 8)
-						tempAction = STAND;
-					else
-						tempAction = HIT;
-				} else if (total > 8)
-					tempAction = STAND;
-			}
-
-			// If a pair was dealt (non-aces)
-			else if (isPair > 5) {
-				if (isPair > 5 && isPair < 9)
-					tempAction = HIT;
-				else if (isPair == 9) {
-					if (dealerFaceUp.getValue() == 7
-							|| dealerFaceUp.getValue() > 9)
-						tempAction = STAND;
-					else
-						tempAction = HIT;
-				} else
-					return STAND;
-			}
-		}
-
-		// Only total of cards is used to determine action if not first action
-		if (!firstTurn) {
-			if (total < 9)
+		int smallestTotal = totals.get(0);
+		// The probability of busting at this point is zero, so we don't have to
+		// take into account probabilities and such.
+		if (smallestTotal <= 11) {
+			if (smallestTotal <= 8) {
 				return HIT;
-			if (total < 12)
-				tempAction = HIT;
-			if (total > 17)
-				tempAction = STAND;
+			} else if (smallestTotal == 9) {
+				if (dealerFaceUp.getValue() >= 3
+						&& dealerFaceUp.getValue() <= 6 && firstMove) {
+					return DOUBLE;
+				} else
+					return HIT;
+			} else if (smallestTotal == 10) {
+				if (dealerFaceUp.getValue() >= 2
+						&& dealerFaceUp.getValue() <= 9 && firstMove) {
+					return DOUBLE;
+				} else
+					return HIT;
+			} else {
+				if (dealerFaceUp.getValue() == 1 && !firstMove)
+					return HIT;
+				else
+					return DOUBLE;
+			}
 		}
-
-		// Passes cards to cardcounter
-		if (firstTurn)
-			firstCards();
-
-		// If an Ace is present, check for the highest possibility not going
-		// over 21 and check for probabilities
-		if (isAce) {
-			int maxValue = aceMax();
-			counter.calculate(maxValue);
-
-			// If max value and chance of not going over is less than certain
-			// percentage, hit again
-			if (counter.probabilities[2] < DEF_BUST && tempAction == STAND)
-				tempAction = HIT;
-		}
-		// If no ace, then only use probabilities
+		// At this point, the minimum total is 11, and the probability of
+		// busting is not zero.
 		else {
-			counter.calculate(total);
+			double underProb = 0;
+			double perfectProb = 0;
+			double bustProb = 0;
+			for (int i = 0; i < totals.size(); i++) {
+				if (totals.get(i) <= 21) {
+					double[] temp = counter.calculate(totals.get(i));
+					underProb += temp[CardCounter.UNDER];
+					perfectProb += temp[CardCounter.PERFECT];
+					bustProb += temp[CardCounter.BUST];
+				}
+			}
+			underProb /= totals.size();
+			perfectProb /= totals.size();
+			bustProb /= totals.size();
 
-			if (counter.probabilities[2] < DEF_BUST && tempAction == STAND)
-				tempAction = HIT;
-			else if (counter.probabilities[2] > DEF_BUST)
-				tempAction = STAND;
+			System.out.println("The perfect prob is: " + perfectProb);
+			System.out.println("The bust prob is: " + bustProb);
+			System.out.println("The under prob is: " + underProb);
+			if (perfectProb > PERF_THRESH
+					|| (underProb > UNDER_THRESH && bustProb < BUST_THRESH))
+				return HIT;
+			else
+				return STAND;
 		}
-
-		// Returns the decided action
-		return tempAction;
 	}
 
-	/**
-	 * Gets the total of all the cards
+	/*
+	 * // If Blackjack, then ignore everything else and return stand if
+	 * (totals.contains(21)) return STAND;
 	 * 
-	 * @return the total of all cards
-	 */
-	protected int getCardTotal() {
-		int total = 0;
-
-		for (int card = 0; card < myHand.size(); card++)
-			total += CARD_VALUES[myHand.get(card).getValue()];
-
-		return total;
-	}
-	
-	/**
-	 * Determines if dealt a pair
+	 * // Covers cheat sheet with first turn algorithms if (myHand.size() == 2)
+	 * { // Basic case with no aces or pairs if (!hasAce && isPair < 6) { //
+	 * Guaranteed action if (totals < 9) return HIT;
 	 * 
-	 * @return if dealt a pair
-	 */
-	protected int isPair() {
-		boolean[] oneCard = new boolean[14];
-
-		for (int card = 0; card < myHand.size(); card++) {
-			int cardAt = myHand.get(card).getValue();
-
-			if (oneCard[cardAt])
-				return cardAt;
-
-			oneCard[cardAt] = true;
-		}
-
-		// If no pair, return 0
-		return 0;
-	}
-
-	/**
-	 * Determines max value in a hand with aces
+	 * // Ambiguous actions, cardcounter referenced later if (totals == 9) { if
+	 * (dealerFaceUp.getValue() > 2 && dealerFaceUp.getValue() < 7) tempAction =
+	 * DOUBLE; else tempAction = HIT; } if (totals == 10) { if
+	 * (dealerFaceUp.getValue() > 1 && dealerFaceUp.getValue() < 10) tempAction
+	 * = DOUBLE; else tempAction = HIT; } if (totals == 11) { if
+	 * (dealerFaceUp.getValue() != 1) tempAction = DOUBLE; else tempAction =
+	 * HIT; } if (totals == 12) { if (dealerFaceUp.getValue() > 3 &&
+	 * dealerFaceUp.getValue() < 7) tempAction = STAND; else tempAction = HIT; }
+	 * if (totals > 17) tempAction = STAND; }
 	 * 
-	 * @return
-	 */
-	protected int aceMax() {
-		// Gets number of aces
-		int noOfAce = 0;
-		for (int card = 0; card < myHand.size(); card++) {
-			if (myHand.get(card).getValue() == 1)
-				noOfAce++;
-		}
-
-		int tempTotal = total;
-		tempTotal -= noOfAce;
-
-		// Determines max value
-		if (tempTotal < 11)
-			tempTotal += 11;
-
-		// If anything was changed, return tempTotal, else return total
-		if (tempTotal != total)
-			return tempTotal;
-		return total;
-	}
-
-	private void firstCards() {
-		for (int cardIndex = 0; cardIndex < myHand.size(); cardIndex++)
-			counter.newCard(myHand.get(cardIndex));
-	}
-
-	/**
-	 * Sends a dealt "hit" card to the counter to recalculate
+	 * // If an Ace was dealt, also covers ace pair as per the reference //
+	 * "cheat sheet" else if (hasAce) { if (totals == 2) tempAction = HIT; else
+	 * if (totals == 3 || totals == 4) { if (dealerFaceUp.getValue() == 5 ||
+	 * dealerFaceUp.getValue() == 6) tempAction = DOUBLE; else tempAction = HIT;
+	 * } else if (totals == 5 || totals == 6) { if (dealerFaceUp.getValue() > 3
+	 * && dealerFaceUp.getValue() < 7) tempAction = DOUBLE; else tempAction =
+	 * HIT; } else if (totals == 7) { if (dealerFaceUp.getValue() > 2 &&
+	 * dealerFaceUp.getValue() < 7) tempAction = DOUBLE; else tempAction = HIT;
+	 * } else if (totals == 8) { if (dealerFaceUp.getValue() > 2 &&
+	 * dealerFaceUp.getValue() < 7) tempAction = DOUBLE; else if
+	 * (dealerFaceUp.getValue() == 2 || dealerFaceUp.getValue() == 7 ||
+	 * dealerFaceUp.getValue() == 8) tempAction = STAND; else tempAction = HIT;
+	 * } else if (totals > 8) tempAction = STAND; }
 	 * 
-	 * @param cardDealt
+	 * // If a pair was dealt (non-aces) else if (isPair > 5) { if (isPair > 5
+	 * && isPair < 9) tempAction = HIT; else if (isPair == 9) { if
+	 * (dealerFaceUp.getValue() == 7 || dealerFaceUp.getValue() > 9) tempAction
+	 * = STAND; else tempAction = HIT; } else return STAND; } }
+	 * 
+	 * // Only total of cards is used to determine action if not first action if
+	 * (!firstTurn) { if (totals < 9) return HIT; if (totals < 12) tempAction =
+	 * HIT; if (totals > 17) tempAction = STAND; }
+	 * 
+	 * // Passes cards to cardcounter // if (firstTurn) // firstCards();
+	 * 
+	 * // If an Ace is present, check for the highest possibility not going //
+	 * over 21 and check for probabilities if (hasAce) { int maxValue =
+	 * aceMax(); counter.calculate(maxValue);
+	 * 
+	 * // If max value and chance of not going over is less than certain //
+	 * percentage, hit again if (counter.probabilities[2] < DEF_BUST &&
+	 * tempAction == STAND) tempAction = HIT; } // If no ace, then only use
+	 * probabilities else { counter.calculate(totals);
+	 * 
+	 * if (counter.probabilities[2] < DEF_BUST && tempAction == STAND)
+	 * tempAction = HIT; else if (counter.probabilities[2] > DEF_BUST)
+	 * tempAction = STAND; }
+	 * 
+	 * // Returns the decided action return tempAction; } // // // /** // * Gets
+	 * the total of all the cards // * // * @return the total of all cards //
 	 */
-	protected void cardDealt(Card cardDealt) {
-		counter.newCard(cardDealt);
-		addToMyHand(cardDealt);
-	}
+	// protected int getCardTotal() {
+	// int total = 0;
+	//
+	// for (int card = 0; card < myHand.size(); card++)
+	// total += CARD_VALUES[myHand.get(card).getValue()];
+	//
+	// return total;
+	// }
+	//
+	// /**
+	// * Determines max value in a hand with aces
+	// *
+	// * @return
+	// */
+	// protected int aceMax() {
+	// // Gets number of aces
+	// int noOfAce = 0;
+	// for (int card = 0; card < myHand.size(); card++) {
+	// if (myHand.get(card).getValue() == 1)
+	// noOfAce++;
+	// }
+	//
+	// int tempTotal = total;
+	// tempTotal -= noOfAce;
+	//
+	// // Determines max value
+	// if (tempTotal < 11)
+	// tempTotal += 11;
+	//
+	// // If anything was changed, return tempTotal, else return total
+	// if (tempTotal != total)
+	// return tempTotal;
+	// return total;
+	// }
 
 	protected void addToMyHand(Card newCard) {
 		myHand.add(newCard);
+		counter.newCard(newCard);
+		totals = myHand.recalcTotals();
 	}
 
 	protected void setDealerCard(Card newCard) {
@@ -273,5 +223,31 @@ public class ActionSelector {
 
 	protected void cardPlayed(Card playedCard) {
 		playedCards[playedCard.getValue()]++;
+	}
+
+	private void cleanUpTotals() {
+		for (int i = 0; i < totals.size(); i++) {
+			if (totals.get(i) > 21)
+				totals.remove(i);
+		}
+	}
+
+	protected void resetHand() {
+		myHand = new Hand();
+	}
+
+	private boolean totalContainsAny(int[] targets) {
+		for (int i = 0; i < totals.size(); i++) {
+			for (int q : targets) {
+				if (totals.get(i) == q) {
+					return true;
+				}
+			}
+		}
+		return false;
+	}
+
+	protected void resetCardCounter() {
+		counter.reset();
 	}
 }

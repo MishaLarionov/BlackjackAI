@@ -1,7 +1,7 @@
 import java.util.ArrayList;
 
 @SuppressWarnings("serial")
-public class Hand extends ArrayList<Card> {
+public class Hand extends ArrayList<Card>{
 
 	Hand() {
 	}
@@ -9,7 +9,7 @@ public class Hand extends ArrayList<Card> {
 	void addCard(Card card) {
 		this.add(card);
 	}
-	
+
 	ArrayList<Integer> recalcTotals() {
 		ArrayList<Integer> possibleTotals = new ArrayList<Integer>();
 		possibleTotals.add(0);

@@ -149,7 +149,7 @@ public class AI {
 				}
 
 				// Adds it to the played cards for counting purposes
-				decision.cardDealt(new Card(cardNum));
+				decision.addToMyHand(new Card(cardNum));
 			}
 
 			// Gets the next deal from server
@@ -234,8 +234,8 @@ public class AI {
 			serverWrite.flush();
 			System.out.println("Sent hit to server");
 
-			decision.cardDealt(new Card(parseCard(serverRead.readLine().split(
-					" ")[2].charAt(0))));
+			decision.addToMyHand(new Card(parseCard(serverRead.readLine()
+					.split(" ")[2].charAt(0))));
 
 			move = decision.decideMove(false);
 		}
