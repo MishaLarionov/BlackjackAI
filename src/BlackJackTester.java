@@ -9,7 +9,7 @@ public class BlackJackTester {
 	ArrayList<Integer> myHand = new ArrayList<Integer>();
 	ArrayList<Integer> dHand = new ArrayList<Integer>();
 	int dealerFaceUp;
-	final int ROUNDS = 5120000;
+	final int ROUNDS = 500000;
 
 	final static boolean SHOW_DEBUG_TEXT = false;
 
