@@ -6,7 +6,8 @@ public class BlackJackTesterReal {
 	int[] remainingCards = new int[13];
 	Hand myHand = new Hand();
 	Hand dealerHand = new Hand();
-	private static final int ROUNDS = 50000000;
+	// 5 x 10^6 rounds takes approx 6 seconds (on i5-3210M)
+	private static final int ROUNDS = 500000000;
 	private static final int DECKS = 6;
 
 	final static boolean SHOW_DEBUG_TEXT = false;
@@ -30,38 +31,39 @@ public class BlackJackTesterReal {
 	}
 
 	BlackJackTesterReal() throws IOException {
-		for (double underThresh = 0.1; underThresh < 0.8; underThresh += 0.05) {
-			ActionSelector.UNDER_THRESH = underThresh;
-			for (double bustThresh = 0.1; bustThresh < 0.8; bustThresh += 0.05) {
-				ActionSelector.BUST_THRESH = bustThresh;
-				int[] temp = runSimulation();
-				double total = temp[0] + temp[1] + temp[2];
-				underThreshes.add(underThresh);
-				bustThreshes.add(bustThresh);
-				totWins.add(temp[0] / total);
-				totLosses.add(temp[1] / total);
-				totTies.add(temp[2] / total);
-			}
-
-		}
-
-		for (int i = 0; i < underThreshes.size(); i++) {
-			System.out.printf("%.3f ", underThreshes.get(i));
-			System.out.printf("%.3f ", bustThreshes.get(i));
-			System.out.printf("%.5f ", totWins.get(i));
-			System.out.printf("%.5f ", totLosses.get(i));
-			System.out.printf("%.5f\n", totTies.get(i));
-		}
-
-		// For running a single set of numbers
+		// for (double underThresh = 0.1; underThresh < 0.8; underThresh +=
+		// 0.05) {
+		// ActionSelector.UNDER_THRESH = underThresh;
+		// for (double bustThresh = 0.1; bustThresh < 0.8; bustThresh += 0.05) {
+		// ActionSelector.BUST_THRESH = bustThresh;
 		// int[] temp = runSimulation();
 		// double total = temp[0] + temp[1] + temp[2];
+		// underThreshes.add(underThresh);
+		// bustThreshes.add(bustThresh);
 		// totWins.add(temp[0] / total);
 		// totLosses.add(temp[1] / total);
 		// totTies.add(temp[2] / total);
-		// System.out.printf("%.5f ", totWins.get(0));
-		// System.out.printf("%.5f ", totLosses.get(0));
-		// System.out.printf("%.5f\n", totTies.get(0));
+		// }
+		//
+		// }
+		//
+		// for (int i = 0; i < underThreshes.size(); i++) {
+		// System.out.printf("%.3f ", underThreshes.get(i));
+		// System.out.printf("%.3f ", bustThreshes.get(i));
+		// System.out.printf("%.5f ", totWins.get(i));
+		// System.out.printf("%.5f ", totLosses.get(i));
+		// System.out.printf("%.5f\n", totTies.get(i));
+		// }
+
+		// For running a single set of numbers
+		int[] temp = runSimulation();
+		double total = temp[0] + temp[1] + temp[2];
+		totWins.add(temp[0] / total);
+		totLosses.add(temp[1] / total);
+		totTies.add(temp[2] / total);
+		System.out.printf("%.5f ", totWins.get(0));
+		System.out.printf("%.5f ", totLosses.get(0));
+		System.out.printf("%.5f\n", totTies.get(0));
 
 	}
 
