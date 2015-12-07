@@ -14,11 +14,8 @@ public class AI {
 	protected short myCoins;
 
 	private ActionSelector decision;
-	// TODO make something to dynamically change the bet amount
-	private int betAmount = 1;
 	private int myPlayerNumber;
-	private String USER_NAME = "VinceIainFelix";
-	private String loopEndStr = "";
+	private String USER_NAME = "VinceIainFelixAI";
 
 	private final static boolean DEBUG = true;
 
@@ -111,26 +108,25 @@ public class AI {
 
 		// TODO add support for multiple rounds
 		while (true) {
-			runRound();
+			runRound(1001 - myCoins);
+			if (getMessage().equals("% SHUFFLE"))
+				decision.resetCardCounter();
 		}
 	}
 
-	private void runRound() {
+	private void runRound(int betAmount) {
 		// Waits for the server to start a new round
 		getMessage("% NEWROUND");
 		System.out.println("Round has started");
 		decision.resetHand();
 
 		// Tell server bet amount, and
-		serverWrite.println(betAmount);
-		serverWrite.flush();
+		sendMessage(betAmount + "");
 
 		// Server will broadcast bets by other players, so ignore that.
 
 		// Takes all the cards that the server deals to all players
 		ArrayList<String> bets = getAllMessages("#");
-//		String dealString = bet;
-		// while (dealString.charAt(0) == '#') {
 		for (int i = 0; i < bets.size(); i++) {
 			// Gets the actual information
 			String dealString = bets.get(i);
@@ -155,40 +151,32 @@ public class AI {
 			}
 		}
 
-//		// Waits for my turn
-//		String turnStr = dealString;
-//		while (!turnStr.equals("% " + myPlayerNumber + " turn")) {
-//			System.out.println("Waiting for turn");
-//			turnStr = serverRead.readLine();
-//		}
-//
-//		runMyTurn();
-//
-//		while (turnStr.startsWith("%")) {
-//			turnStr = serverRead.readLine();
-//		}
-		
-		getMessage("% " + myPlayerNumber + " turn");
-		
-
-		while (!turnStr.startsWith("# 0")) {
-			turnStr = serverRead.readLine();
-			System.out.println("Waiting for the server to reveal their cards");
+		// Waits until my turn, collecting info about all cards in the process.
+		String message = "";
+		while (!message.equals("% " + myPlayerNumber + " turn")) {
+			message = getMessage();
+			if (message.startsWith("#"))
+				decision.cardPlayed(new Card(parseCard(message.split(" ")[2]
+						.charAt(0))));
 		}
 
-		// Gets the face-down card and other cards that the dealer pulls
-		String remainingCards = serverRead.readLine();
-		while (remainingCards.startsWith("#")) {
-			String[] rCards = remainingCards.split(" ");
-			decision.cardPlayed(new Card(Integer.parseInt(rCards[2])));
-			remainingCards = serverRead.readLine();
+		runMyTurn();
+
+		while (!message.startsWith("# 0")) {
+			message = getMessage();
+			if (message.startsWith("#"))
+				decision.cardPlayed(new Card(parseCard(message.split(" ")[2]
+						.charAt(0))));
 		}
 
-		String updateStr = turnStr;
-		while (!updateStr.startsWith("+")) {
-			updateStr = serverRead.readLine();
+		ArrayList<String> dealerCards = getAllMessages("#");
+
+		for (int i = 0; i < dealerCards.size(); i++) {
+			decision.cardPlayed(new Card(Integer.parseInt(dealerCards.get(i)
+					.split(" ")[2])));
 		}
-		String[] updateCoins = updateStr.split(" ");
+
+		String[] updateCoins = getMessage("+").split(" ");
 		for (int i = 1; i < updateCoins.length; i += 2) {
 			if (Integer.parseInt(updateCoins[i]) == myPlayerNumber) {
 				try {
@@ -198,15 +186,11 @@ public class AI {
 				}
 			}
 		}
-
-		if (updateStr.equals("% SHUFFLE")) {
-			decision.resetCardCounter();
-		}
-		loopEndStr = updateStr;
 	}
 
 	private int parseCard(char cardChar) {
 		int cardNum;
+		cardChar = Character.toUpperCase(cardChar);
 		// Special cases for "face" cards
 		switch (cardChar) {
 		case 'A':
@@ -231,28 +215,23 @@ public class AI {
 		return cardNum;
 	}
 
-	private void runMyTurn() throws IOException {
+	private void runMyTurn() {
 		// "Hit" is never the last move; something always follows it
 		int move = decision.decideMove(true);
 		while (move == ActionSelector.HIT) {
-			serverWrite.println("hit");
-			serverWrite.flush();
-			System.out.println("Sent hit to server");
+			sendMessage("hit");
 
-			decision.addToMyHand(new Card(parseCard(serverRead.readLine()
-					.split(" ")[2].charAt(0))));
+			decision.addToMyHand(new Card(parseCard(getMessage().split(" ")[2]
+					.charAt(0))));
 
 			move = decision.decideMove(false);
 		}
 		// Either a double down or a stand must be the last move.
 		if (move == ActionSelector.DOUBLE) {
-			serverWrite.println("doubledown");
-			System.out.println("Sent doubledown to server");
+			sendMessage("doubledown");
 		} else if (move == ActionSelector.STAND) {
-			serverWrite.println("stand");
-			System.out.println("Sent stand to server");
+			sendMessage("stand");
 		}
-		serverWrite.flush();
 	}
 
 	private String getMessage(String regex) {
@@ -287,19 +266,14 @@ public class AI {
 		ArrayList<String> messages = new ArrayList<String>();
 		String message = "";
 		while (!message.startsWith(regex)) {
-			try {
-				message = serverRead.readLine();
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
+			message = getMessage();
 		}
-		do {
-			try {
-				messages.add(serverRead.readLine());
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-		} while (message.startsWith(regex));
+		while (message.startsWith(regex)) {
+			messages.add(message);
+			message = getMessage();
+			// TODO find a way to get all the lines that starts with a certain
+			// regex, but not the one after that.
+		}
 		return messages;
 	}
 
