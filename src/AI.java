@@ -5,14 +5,23 @@ import java.io.PrintWriter;
 import java.net.Socket;
 import java.util.ArrayList;
 
+/**
+ * AI that plays Blackjack against a networked server
+ * 
+ * @author Vince, Iain, Felix
+ */
 public class AI {
 
+	// Server communications
 	private Socket server;
 	private PrintWriter serverWrite;
 	private BufferedReader serverRead;
 
-	protected short myCoins;
+	// Keeps track of coins
+	private short myCoins;
+	private short betAmount;
 
+	// Blackjack playing stuff
 	private ActionSelector decision;
 	private int myPlayerNumber;
 	private String USER_NAME = "VinceIainFelixAI";
@@ -27,18 +36,18 @@ public class AI {
 		}
 	}
 
+	/**
+	 * The instantiatable AI.
+	 * 
+	 * @throws IOException
+	 */
 	public AI() throws IOException {
 		// Asks user for IP of server, etc.
 		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-
 		System.out.print("What is the server's IP address? ");
 		String ip = "";
-
 		ip = br.readLine();
-		if (DEBUG)
-			ip = "10.242.166.206";
 		System.out.println("");
-
 		while (!ip.matches("[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}")) {
 			System.out
 					.print("That doesn't look like a valid IPv4 address.\nTry again: ");
@@ -46,34 +55,27 @@ public class AI {
 			System.out.println("");
 		}
 
-		// Gets port of game
+		// Gets server's port
 		System.out.print("What port is the server operating on? ");
 		String port = "";
-
 		port = br.readLine();
 		while (!port.matches("[0-9]*")) {
 			System.out
 					.println("That doesn't look like a valid port number.\nTry again: ");
 			port = br.readLine();
 		}
-
 		br.close();
 		br = null;
 
-		// Sets up connection
+		// Sets up connection and Selectors.
 		server = new Socket(ip, Integer.parseInt(port));
-
 		serverRead = new BufferedReader(new InputStreamReader(
 				server.getInputStream()));
 		serverWrite = new PrintWriter(server.getOutputStream());
-
 		decision = new ActionSelector();
 
-		// Send name to server
-		sendMessage(USER_NAME);
-
-		// Tell server we want to be a player
-		sendMessage("PLAY");
+		// Send name and intentions to server
+		sendMessage(USER_NAME + "\n" + "PLAY");
 
 		// So apparently you can spam the server with requests to play every
 		// second if you're not accepted right away. So that's what we're gonig
@@ -86,7 +88,7 @@ public class AI {
 		 * e.printStackTrace(); } }
 		 */
 
-		// Gets info about current player from server
+		// Checks connection
 		if (!getMessage().equals("% ACCEPTED")) {
 			System.out.println("Failed to accept request to server.");
 			try {
@@ -97,24 +99,32 @@ public class AI {
 			System.exit(0);
 		}
 
+		// Gets my player number (to keep track for when the game alternates
+		// turns later
 		myPlayerNumber = Integer.parseInt(getMessage("@").split(" ")[1].trim());
 
-		// Waits for game to start
-		// They broadcast a bunch of useless stuff like
-		// "this other player joined, etc."
+		// Waits for game to start, initializes stuff.
 		sendMessage("READY");
 		getMessage("% START");
 		myCoins = 1000;
 
 		// TODO add support for multiple rounds
+		// Each iteration of the while loop is one round.
+		// We don't exactly know when the game ends because the server group
+		// hasn't decided on that yet.
 		while (true) {
-			runRound(1001 - myCoins);
+			// Runs the round, and determines what to do accordingly.
+			betAmount = (short) (1001 - myCoins);
+			runRound();
 			if (getMessage().equals("% SHUFFLE"))
 				decision.resetCardCounter();
 		}
 	}
 
-	private void runRound(int betAmount) {
+	/**
+	 * Runs the functions for one round of Blackjack
+	 */
+	private void runRound() {
 		// Waits for the server to start a new round
 		getMessage("% NEWROUND");
 		System.out.println("Round has started");
@@ -128,9 +138,8 @@ public class AI {
 		// Takes all the cards that the server deals to all players
 		ArrayList<String> bets = getAllMessages("#");
 		for (int i = 0; i < bets.size(); i++) {
-			// Gets the actual information
-			String dealString = bets.get(i);
-			String[] cardDeal = dealString.split(" ");
+			// Gets the actual information about cards
+			String[] cardDeal = bets.get(i).split(" ");
 			int playerNum = Integer.parseInt(cardDeal[1]);
 			char cardChar = cardDeal[2].charAt(0);
 			int cardNum;
@@ -155,13 +164,16 @@ public class AI {
 		String message = "";
 		while (!message.equals("% " + myPlayerNumber + " turn")) {
 			message = getMessage();
+			// If it's a card, intercept it, and add it to the card counting.
 			if (message.startsWith("#"))
 				decision.cardPlayed(new Card(parseCard(message.split(" ")[2]
 						.charAt(0))));
 		}
 
+		// Runs my decision making process
 		runMyTurn();
 
+		// Waits until the dealer reveals their cards
 		while (!message.startsWith("# 0")) {
 			message = getMessage();
 			if (message.startsWith("#"))
@@ -169,13 +181,16 @@ public class AI {
 						.charAt(0))));
 		}
 
-		ArrayList<String> dealerCards = getAllMessages("#");
+		// Intentional "overrun" of counter to read over useless line.
 
+		// Adds dealer's cards to the card counting database
+		ArrayList<String> dealerCards = getAllMessages("#");
 		for (int i = 0; i < dealerCards.size(); i++) {
 			decision.cardPlayed(new Card(Integer.parseInt(dealerCards.get(i)
 					.split(" ")[2])));
 		}
 
+		// Updates the current amount of coins.
 		String[] updateCoins = getMessage("+").split(" ");
 		for (int i = 1; i < updateCoins.length; i += 2) {
 			if (Integer.parseInt(updateCoins[i]) == myPlayerNumber) {
@@ -188,6 +203,14 @@ public class AI {
 		}
 	}
 
+	/**
+	 * Takes the "server character" of a card and turns it into a numerical
+	 * value (1-13)
+	 * 
+	 * @param cardChar
+	 *            the original card code by the server
+	 * @return the numerical value of the card
+	 */
 	private int parseCard(char cardChar) {
 		int cardNum;
 		cardChar = Character.toUpperCase(cardChar);
@@ -208,6 +231,8 @@ public class AI {
 		case 'K':
 			cardNum = 13;
 			break;
+
+		// Not face cards
 		default:
 			cardNum = Integer.parseInt(cardChar + "");
 			break;
@@ -215,17 +240,28 @@ public class AI {
 		return cardNum;
 	}
 
+	/**
+	 * Does decision making for each turn
+	 */
 	private void runMyTurn() {
-		// "Hit" is never the last move; something always follows it
-		int move = decision.decideMove(true);
+		int move;
+
+		// If our number of coins is less than double the bet amount, don't
+		// allow doubling down.
+		if (myCoins > 2 * betAmount)
+			move = decision.decideMove(true);
+		else
+			move = decision.decideMove(false);
+
+		// Last move is never "hit", so gets all the hits out of the way
 		while (move == ActionSelector.HIT) {
 			sendMessage("hit");
-
+			// Gets the card and adds it to my hand
 			decision.addToMyHand(new Card(parseCard(getMessage().split(" ")[2]
 					.charAt(0))));
-
 			move = decision.decideMove(false);
 		}
+
 		// Either a double down or a stand must be the last move.
 		if (move == ActionSelector.DOUBLE) {
 			sendMessage("doubledown");
@@ -234,8 +270,18 @@ public class AI {
 		}
 	}
 
+	/**
+	 * Ignores all other messages and gets the first message that starts with
+	 * the regular expression
+	 * 
+	 * @param regex
+	 *            the regex that the target string starts with
+	 * @return the target string
+	 */
 	private String getMessage(String regex) {
 		String message = "";
+
+		// Keeps iterating through the io until it reaches the desired message
 		while (!message.startsWith(regex)) {
 			try {
 				message = serverRead.readLine();
@@ -246,11 +292,18 @@ public class AI {
 				System.out.println("Response from server: " + message);
 			}
 		}
+		// Returns the message
 		return message;
 	}
 
+	/**
+	 * Gets the next string in the buffer
+	 * 
+	 * @return the target string
+	 */
 	private String getMessage() {
 		String message = "";
+		// Gets the message
 		try {
 			message = serverRead.readLine();
 		} catch (IOException e) {
@@ -262,28 +315,46 @@ public class AI {
 		return message;
 	}
 
+	/**
+	 * Ignores all strings until the first one is found starting with the regex,
+	 * Then returns an ArrayList of all the Strings following it that also start
+	 * with the regex
+	 * 
+	 * @param regex
+	 *            the regex the target starts with
+	 * @return ArrayList of strings that starts with the regex
+	 */
 	private ArrayList<String> getAllMessages(String regex) {
 		ArrayList<String> messages = new ArrayList<String>();
+		// For IOExceptions.
 		try {
 			String message = "";
+			// Skips all other strings before the target
 			while (!message.startsWith(regex)) {
 				message = getMessage();
 			}
+			// Gets all target strings
 			while (message.startsWith(regex)) {
 				messages.add(message);
 				serverRead.mark(100);
 				message = getMessage();
 			}
+			// Moves the cursor back to the position before that line
 			serverRead.reset();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+		// Duh.
 		return messages;
 	}
 
-	// TODO check if double down is possible based on amount of coins
-
+	/**
+	 * Sends a string to the server. Saves two lines of print, then flush.
+	 * 
+	 * @param message
+	 */
 	private void sendMessage(String message) {
+		// Pretty self explanatory
 		try {
 			serverWrite.println(message);
 			serverWrite.flush();
