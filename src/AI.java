@@ -3,6 +3,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
+import java.net.SocketException;
 import java.util.ArrayList;
 
 /**
@@ -29,6 +30,7 @@ public class AI {
 	private final static boolean DEBUG = true;
 
 	public static void main(String[] args) {
+		System.out.println("===AI===");
 		try {
 			new AI();
 		} catch (IOException e) {
@@ -48,6 +50,9 @@ public class AI {
 		String ip = "";
 		ip = br.readLine();
 		System.out.println("");
+		if (DEBUG) {
+			ip = "127.0.0.1";
+		}
 		while (!ip.matches("[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}")) {
 			System.out
 					.print("That doesn't look like a valid IPv4 address.\nTry again: ");
@@ -59,6 +64,9 @@ public class AI {
 		System.out.print("What port is the server operating on? ");
 		String port = "";
 		port = br.readLine();
+		if (DEBUG) {
+			port = "1234";
+		}
 		while (!port.matches("[0-9]*")) {
 			System.out
 					.println("That doesn't look like a valid port number.\nTry again: ");
@@ -114,7 +122,7 @@ public class AI {
 		// hasn't decided on that yet.
 		while (true) {
 			// Runs the round, and determines what to do accordingly.
-			betAmount = (short) (1001 - myCoins);
+			betAmount = (short) (1010 - myCoins);
 			runRound();
 			if (getMessage().equals("% SHUFFLE"))
 				decision.resetCardCounter();
@@ -192,8 +200,10 @@ public class AI {
 
 		// Updates the current amount of coins.
 		String[] updateCoins = getMessage("+").split(" ");
+		boolean stillPlaying = false;
 		for (int i = 1; i < updateCoins.length; i += 2) {
 			if (Integer.parseInt(updateCoins[i]) == myPlayerNumber) {
+				stillPlaying = true;
 				try {
 					myCoins = Short.parseShort(updateCoins[i + 1]);
 				} catch (ArrayIndexOutOfBoundsException e) {
@@ -306,6 +316,10 @@ public class AI {
 		// Gets the message
 		try {
 			message = serverRead.readLine();
+		} catch (SocketException e) {
+			e.printStackTrace();
+			System.err.println("Connection to server failed. Quitting.");
+			System.exit(0);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
