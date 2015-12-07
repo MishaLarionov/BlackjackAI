@@ -264,15 +264,19 @@ public class AI {
 
 	private ArrayList<String> getAllMessages(String regex) {
 		ArrayList<String> messages = new ArrayList<String>();
-		String message = "";
-		while (!message.startsWith(regex)) {
-			message = getMessage();
-		}
-		while (message.startsWith(regex)) {
-			messages.add(message);
-			message = getMessage();
-			// TODO find a way to get all the lines that starts with a certain
-			// regex, but not the one after that.
+		try {
+			String message = "";
+			while (!message.startsWith(regex)) {
+				message = getMessage();
+			}
+			while (message.startsWith(regex)) {
+				messages.add(message);
+				serverRead.mark(100);
+				message = getMessage();
+			}
+			serverRead.reset();
+		} catch (IOException e) {
+			e.printStackTrace();
 		}
 		return messages;
 	}
