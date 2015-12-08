@@ -30,9 +30,7 @@ public class CardCounter {
 
 	/**
 	 * Updates the availableCards array with cards dealt by the dealer
-	 * 
-	 * @param card
-	 *            the card
+	 * @param card the card
 	 */
 	protected void newCard(Card card) {
 		availableCards[card.getValue() - 1]--;
