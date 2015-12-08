@@ -1,7 +1,7 @@
 import java.util.ArrayList;
 
 @SuppressWarnings("serial")
-public class Hand extends ArrayList<Card>{
+public class Hand extends ArrayList<Card> {
 
 	Hand() {
 	}
