@@ -20,7 +20,7 @@ class AI {
 
 	private int wins = 0;
 	private int losses = 0;
-	
+
 	private static final boolean DEBUG = true;
 
 	public static void main(String[] args) {
@@ -116,7 +116,7 @@ class AI {
 		case '#':
 			// Card is dealt
 			cardDealt(message);
-//			System.out.println("Card dealt");
+			// System.out.println("Card dealt");
 			break;
 
 		/*
@@ -146,12 +146,12 @@ class AI {
 			// Server command
 			if (message.startsWith("% NEWROUND")) {
 				resetForNewRound();
-//				System.out.println("New round started");
+				// System.out.println("New round started");
 			} else if (message.equals("% " + myPlayerNumber + " turn"))
 				runMyTurn();
 			else if (message.startsWith("% SHUFFLE")) {
 				decision.resetCardCounter();
-//				System.out.println("Shuffling");
+				// System.out.println("Shuffling");
 			} else if (message.equals("% FORMATERROR")) {
 				stopAI("Error from server");
 			}
@@ -161,22 +161,28 @@ class AI {
 			// Updated number of coins at end of round
 			String[] updateCoins = message.split(" ");
 			boolean stillPlaying = false;
+			short newCoins = 0;
 			for (int i = 1; i < updateCoins.length; i += 2) {
 				if (Integer.parseInt(updateCoins[i]) == myPlayerNumber) {
 					stillPlaying = true;
-					short newCoins = 0;
 					try {
 						newCoins = Short.parseShort(updateCoins[i + 1]);
 					} catch (ArrayIndexOutOfBoundsException e) {
 						e.printStackTrace();
 					}
-					if (newCoins > myCoins)
-						wins++;
-					else
-						losses++;
-					myCoins = newCoins;
+					break;
 				}
 			}
+			
+			if (newCoins > myCoins) {
+				wins++;
+				System.out.println("Wins++");
+			} else {
+				losses++;
+				System.out.println("Losses++");
+			}
+			myCoins = newCoins;
+			
 			if (DEBUG)
 				System.out.println("Coins: " + myCoins);
 
@@ -209,8 +215,8 @@ class AI {
 		}
 		if (DEBUG) {
 			System.out.println("Received from server: " + message);
-//			System.out.println("\t"
-//					+ Thread.currentThread().getStackTrace()[2].toString());
+			// System.out.println("\t"
+			// + Thread.currentThread().getStackTrace()[2].toString());
 		}
 		return message;
 	}
@@ -237,11 +243,11 @@ class AI {
 
 	private void resetForNewRound() {
 		decision.resetHand();
-		betAmount = (int) ((1000 - myCoins) / 3.2);
+		betAmount = (int) ((1000 - myCoins) / 2);
 
 		if (betAmount >= myCoins) {
 			if (myCoins < 100)
-			betAmount = (int) (myCoins / 2);
+				betAmount = (int) (myCoins / 2);
 			else
 				betAmount = (int) (myCoins / 7);
 		}
@@ -269,7 +275,8 @@ class AI {
 			actOnMessage();
 			String[] nlSplit = getNextLine().split(" ");
 			if (Integer.parseInt(nlSplit[1]) == myPlayerNumber
-					&& (nlSplit[2].equals("bust") || nlSplit[2].equals("blackjack")))
+					&& (nlSplit[2].equals("bust") || nlSplit[2]
+							.equals("blackjack")))
 				return;
 			move = decision.decideMove(false);
 		}
