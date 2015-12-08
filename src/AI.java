@@ -300,11 +300,17 @@ public class AI {
 		for (int i = 1; i < updateCoins.length; i += 2) {
 			if (Integer.parseInt(updateCoins[i]) == myPlayerNumber) {
 				stillPlaying = true;
+				short newCoins = 0;
 				try {
-					myCoins = Short.parseShort(updateCoins[i + 1]);
+					newCoins = Short.parseShort(updateCoins[i + 1]);
 				} catch (ArrayIndexOutOfBoundsException e) {
 					e.printStackTrace();
 				}
+				if (newCoins > myCoins)
+					wins++;
+				else
+					losses++;
+				myCoins = newCoins;
 			}
 		}
 		if (!stillPlaying) {
