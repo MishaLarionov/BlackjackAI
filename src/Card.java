@@ -6,6 +6,32 @@ public class Card implements Comparable<Card> {
 	Card(int value) {
 		this.value = value;
 	}
+	
+	Card(char charVal){
+		cardChar = Character.toUpperCase(cardChar);		
+		// Special cases for "face" cards		
+		switch (cardChar) {		
+		case 'A':		
+			value = 1;		
+			break;		
+		case 'T':		
+			value = 10;		
+			break;		
+		case 'J':		
+			value = 11;		
+			break;		
+		case 'Q':		
+			value = 12;		
+			break;		
+		case 'K':		
+			value = 13;		
+			break;		
+			// Not face cards		
+		default:		
+			value = Integer.parseInt(cardChar + "");		
+			break;		
+		}		
+	}
 
 	int getValue() {
 		return value;
