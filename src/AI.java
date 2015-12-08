@@ -20,9 +20,7 @@ class AI {
 
 	private int wins = 0;
 	private int losses = 0;
-
-	private static final double DIV_AMOUNT = 3.75;
-
+	
 	private static final boolean DEBUG = true;
 
 	public static void main(String[] args) {
@@ -118,6 +116,7 @@ class AI {
 		case '#':
 			// Card is dealt
 			cardDealt(message);
+//			System.out.println("Card dealt");
 			break;
 
 		/*
@@ -147,12 +146,12 @@ class AI {
 			// Server command
 			if (message.startsWith("% NEWROUND")) {
 				resetForNewRound();
-				System.out.println("New round started");
+//				System.out.println("New round started");
 			} else if (message.equals("% " + myPlayerNumber + " turn"))
 				runMyTurn();
 			else if (message.startsWith("% SHUFFLE")) {
 				decision.resetCardCounter();
-				System.out.println("Shuffling");
+//				System.out.println("Shuffling");
 			} else if (message.equals("% FORMATERROR")) {
 				stopAI("Error from server");
 			}
@@ -208,8 +207,11 @@ class AI {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		if (DEBUG)
+		if (DEBUG) {
 			System.out.println("Received from server: " + message);
+//			System.out.println("\t"
+//					+ Thread.currentThread().getStackTrace()[2].toString());
+		}
 		return message;
 	}
 
@@ -234,13 +236,14 @@ class AI {
 	}
 
 	private void resetForNewRound() {
-		if (DEBUG)
-			System.out.println("AI.resetForNewRound()");
 		decision.resetHand();
-		betAmount = (int) ((1000 - myCoins) / DIV_AMOUNT);
+		betAmount = (int) ((1000 - myCoins) / 3.2);
 
 		if (betAmount >= myCoins) {
-			betAmount = (int) (myCoins / (DIV_AMOUNT * 2));
+			if (myCoins < 100)
+			betAmount = (int) (myCoins / 2);
+			else
+				betAmount = (int) (myCoins / 7);
 		}
 		if (betAmount < 10) {
 			betAmount = 10;
@@ -264,8 +267,10 @@ class AI {
 			// Gets the card and adds it to my hand
 			// This next one is guaranteed to be a card input (hopefully)
 			actOnMessage();
-			waitUntilMatching("% " + myPlayerNumber + " turn");
-			getNextLine();
+			String[] nlSplit = getNextLine().split(" ");
+			if (Integer.parseInt(nlSplit[1]) == myPlayerNumber
+					&& (nlSplit[2].equals("bust") || nlSplit[2].equals("blackjack")))
+				return;
 			move = decision.decideMove(false);
 		}
 
