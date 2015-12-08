@@ -127,11 +127,9 @@ public class AI {
 		while (true) {
 			// Runs the round, and determines what to do accordingly.
 			betAmount = (short) (1010 - myCoins);
-			if (betAmount < 10) {
+			if (betAmount < 10 || betAmount >= myCoins) {
 				betAmount = 15;
 			}
-
-			runRound();
 
 			serverRead.mark(75);
 			String msg = "";
@@ -144,6 +142,8 @@ public class AI {
 				decision.resetCardCounter();
 			else
 				serverRead.reset();
+
+			runRound();
 		}
 	}
 
