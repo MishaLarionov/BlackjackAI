@@ -21,6 +21,10 @@ class AI {
 	private int wins = 0;
 	private int losses = 0;
 
+	private int busts = 0;
+	private int perfects = 0;
+	private int under = 0;
+
 	private static final boolean DEBUG = true;
 
 	public static void main(String[] args) {
@@ -51,6 +55,9 @@ class AI {
 			// Gets the port # of server
 			System.out.println("\nWhat is the port number?");
 			port = br.readLine();
+			if (DEBUG){
+				port = "1234";
+			}
 			while (!port.matches("[0-9]*")) {
 				System.out
 						.println("This doesn't look like a valid port number. Try again.");
@@ -78,14 +85,7 @@ class AI {
 
 		// If not accepted into game, will quit.
 		if (!getNextLine().equals("% ACCEPTED")) {
-			System.out
-					.println("Server denied connection (possibly full room?). AI quitting.");
-			try {
-				server.close();
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-			System.exit(0);
+			stopAI("Denied server conection");
 		}
 
 		// waitUntilMatching("@");
@@ -173,7 +173,7 @@ class AI {
 					break;
 				}
 			}
-			
+
 			if (newCoins > myCoins) {
 				wins++;
 				System.out.println("Wins++");
@@ -182,9 +182,7 @@ class AI {
 				System.out.println("Losses++");
 			}
 			myCoins = newCoins;
-			
-			if (DEBUG)
-				System.out.println("Coins: " + myCoins);
+			showStats();
 
 			if (!stillPlaying) {
 				stopAI("Game ended for some reason");
@@ -217,6 +215,16 @@ class AI {
 			System.out.println("Received from server: " + message);
 			// System.out.println("\t"
 			// + Thread.currentThread().getStackTrace()[2].toString());
+			String[] result = message.split(" ");
+			if (result[0].charAt(0) == '&'
+					&& Integer.parseInt(result[1]) == myPlayerNumber) {
+				if (result[2].equals("blackjack"))
+					perfects++;
+				else if (result[2].equals("bust"))
+					busts++;
+				else if (result[2].equals("stand"))
+					under++;
+			}
 		}
 		return message;
 	}
@@ -274,10 +282,10 @@ class AI {
 			// This next one is guaranteed to be a card input (hopefully)
 			actOnMessage();
 			String[] nlSplit = getNextLine().split(" ");
-			if (Integer.parseInt(nlSplit[1]) == myPlayerNumber
-					&& (nlSplit[2].equals("bust") || nlSplit[2]
-							.equals("blackjack")))
-				return;
+			if (Integer.parseInt(nlSplit[1]) == myPlayerNumber)
+				if (nlSplit[2].equals("bust") || nlSplit[2].equals("blackjack"))
+					return;
+
 			move = decision.decideMove(false);
 		}
 
@@ -296,8 +304,8 @@ class AI {
 	}
 
 	private void stopAI(String message) {
-		System.err.println(message + "\nWins = " + wins + "\nLosses = "
-				+ losses);
+		System.err.println(message);
+		showStats();
 		try {
 			sRead.close();
 			sWrite.close();
@@ -306,5 +314,13 @@ class AI {
 			e.printStackTrace();
 		}
 		System.exit(0);
+	}
+
+	private void showStats() {
+		System.out.println("\nWins = " + wins + "\nLosses = " + losses
+				+ "\nUnders = " + under + "\nBusts = " + busts
+				+ "\nBlackjacks = " + perfects + "\nCoins = " + myCoins
+				+ "\nUnderThresh = " + ActionSelector.UNDER_THRESH
+				+ "\nBustThresh = " + ActionSelector.BUST_THRESH);
 	}
 }
