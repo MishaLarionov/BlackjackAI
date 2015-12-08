@@ -132,6 +132,7 @@ public class ActionSelector {
 
 	protected void resetHand() {
 		myHand = new Hand();
+		dealerFaceUp = null;
 	}
 
 	private boolean totalContainsAny(int[] targets) {
