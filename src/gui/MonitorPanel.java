@@ -24,7 +24,9 @@ public class MonitorPanel extends JPanel {
 	private JPanel textInfo;
 	private JScrollPane textScrollable;
 
-	private GraphPanel graph;
+	private JPanel rightHalf;
+	private CoinGraph coinG;
+	private WinLossGraph winLossG;
 
 	private CustomTextArea[] textBoxes = new CustomTextArea[9];
 	// 0 title
@@ -57,8 +59,12 @@ public class MonitorPanel extends JPanel {
 		textScrollable = new JScrollPane(textInfo);
 		this.add(textScrollable);
 
-		graph = new GraphPanel();
-		this.add(graph);
+		rightHalf = new JPanel(new GridLayout(2, 1, 4, 0));
+		coinG = new CoinGraph();
+		winLossG = new WinLossGraph();
+		rightHalf.add(coinG);
+		rightHalf.add(winLossG);
+		this.add(rightHalf);
 	}
 
 	protected void recalcWinLoss(int wins, int losses, int coins) {
@@ -70,27 +76,29 @@ public class MonitorPanel extends JPanel {
 	}
 
 	protected void redrawMyCards(Hand myHand) {
-		textBoxes[1].setText(myHand.toString());
+		textBoxes[1].setText("My hand is: " + myHand.toString());
 	}
 
 	protected void redrawDealerCard(Card dealerCard) {
-		textBoxes[3].setText(dealerCard.toString());
+		textBoxes[3].setText("Dealer's face-up card is: "
+				+ dealerCard.toString());
 	}
 
 	protected void redrawMyAction(String action) {
-		textBoxes[2].setText(action);
+		textBoxes[2].setText("Planned action is: " + action);
 	}
 
 	public void updateAtEndOfRound(int wins, int losses, int coins) {
 		recalcWinLoss(wins, losses, coins);
 
-		textBoxes[4].setText(winLossRatio + "");
+		textBoxes[4].setText("Win/Loss Ratio: " + winLossRatio);
 		textBoxes[5].setText("Win Percentage: " + winPercent
 				+ "\nLoss Percentage: " + lossPercent);
-		textBoxes[7].setText((wins + losses) + "");
-		textBoxes[8].setText(coins + "");
+		textBoxes[7].setText("Rounds: " + (wins + losses));
+		textBoxes[8].setText("Coins: " + coins);
 
-		graph.updateWinLoss(winLossRatio);
+		winLossG.updateWinLoss(winLossRatio);
+		coinG.updateCoins(coins);
 	}
 
 	public void setThresholds() {

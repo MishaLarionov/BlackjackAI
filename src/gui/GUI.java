@@ -1,7 +1,10 @@
 package gui;
 
 import java.awt.Dimension;
+import java.io.File;
+import java.io.IOException;
 
+import javax.imageio.ImageIO;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 
@@ -30,6 +33,11 @@ public class GUI extends JFrame {
 		this.setDefaultCloseOperation(EXIT_ON_CLOSE);
 		this.setPreferredSize(new Dimension(600, 400));
 		this.setResizable(false);
+		try {
+			this.setIconImage(ImageIO.read(new File("cardIcon.png")));
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 		mPanel = new MonitorPanel();
 		this.add(mPanel);
 		mPanel.setThresholds();

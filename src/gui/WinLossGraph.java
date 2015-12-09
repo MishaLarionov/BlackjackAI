@@ -5,13 +5,13 @@ import java.util.ArrayList;
 
 import javax.swing.JPanel;
 
-class GraphPanel extends JPanel {
+class WinLossGraph extends JPanel {
 
 	private ArrayList<Double> winLossHistory = new ArrayList<Double>();
 	private double minWinLoss = Integer.MAX_VALUE;
 	private double maxWinLoss = Integer.MIN_VALUE;
 
-	protected GraphPanel() {
+	protected WinLossGraph() {
 		// Does nothing, I don't think.
 	}
 
@@ -22,12 +22,13 @@ class GraphPanel extends JPanel {
 
 	protected void updateWinLoss(double winLoss) {
 		winLossHistory.add(winLoss);
-		
+
 		if (winLoss > maxWinLoss)
 			maxWinLoss = winLoss;
 		if (winLoss < minWinLoss)
 			minWinLoss = winLoss;
-		
+
 		this.repaint();
-	}
+		
+	}	
 }

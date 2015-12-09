@@ -113,7 +113,7 @@ public class ActionSelector {
 				System.out.println("The under prob is: " + underProb);
 				System.out.println("The double prob is: " + doubleProb);
 			}
-			if (doubleProb > DOUBLE_THRESH || perfectProb > PERF_THRESH)
+			if ((doubleProb > DOUBLE_THRESH || perfectProb > PERF_THRESH) && firstMove)
 				return DOUBLE;
 			else if (underProb > UNDER_THRESH && bustProb < BUST_THRESH)
 				return HIT;
