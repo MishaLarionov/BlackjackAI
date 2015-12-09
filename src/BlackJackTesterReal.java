@@ -7,7 +7,7 @@ public class BlackJackTesterReal {
 	Hand myHand = new Hand();
 	Hand dealerHand = new Hand();
 	// 5 x 10^6 rounds takes approx 6 seconds (on i5-3210M)
-	private static final int ROUNDS = 10000000;
+	private static final int ROUNDS = 5000000;
 	private static final int DECKS = 6;
 
 	final static boolean SHOW_DEBUG_TEXT = false;

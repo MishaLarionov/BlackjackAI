@@ -26,6 +26,9 @@ class AI {
 	private int under = 0;
 
 	private static final boolean DEBUG = true;
+	private static final boolean SHOW_ALL_NETWORK_IO = false;
+	private static final boolean AUTO_IP = true;
+	private static final boolean SHOW_STATS = true;
 
 	public static void main(String[] args) {
 		System.out.println("===AI===");
@@ -42,8 +45,9 @@ class AI {
 			// Gets the IP of server
 			System.out.println("What is the IP of the server?");
 			ip = br.readLine();
-			if (DEBUG) {
+			if (AUTO_IP) {
 				ip = "127.0.0.1";
+				System.out.println("IP set to 127.0.0.1.");
 			}
 			while (!ip
 					.matches("[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}")) {
@@ -55,8 +59,9 @@ class AI {
 			// Gets the port # of server
 			System.out.println("\nWhat is the port number?");
 			port = br.readLine();
-			if (DEBUG){
+			if (AUTO_IP) {
 				port = "1234";
+				System.out.println("Port set to 1234.");
 			}
 			while (!port.matches("[0-9]*")) {
 				System.out
@@ -116,7 +121,6 @@ class AI {
 		case '#':
 			// Card is dealt
 			cardDealt(message);
-			// System.out.println("Card dealt");
 			break;
 
 		/*
@@ -153,7 +157,7 @@ class AI {
 				decision.resetCardCounter();
 				// System.out.println("Shuffling");
 			} else if (message.equals("% FORMATERROR")) {
-				stopAI("Error from server");
+				stopAI("FORMATERROR from server");
 			}
 			break;
 
@@ -176,10 +180,12 @@ class AI {
 
 			if (newCoins > myCoins) {
 				wins++;
-				System.out.println("Wins++");
+				if (DEBUG)
+					System.out.println("Wins++");
 			} else {
 				losses++;
-				System.out.println("Losses++");
+				if (DEBUG)
+					System.out.println("Losses++");
 			}
 			myCoins = newCoins;
 			showStats();
@@ -198,7 +204,7 @@ class AI {
 		sWrite.println(message);
 		sWrite.flush();
 
-		if (DEBUG)
+		if (SHOW_ALL_NETWORK_IO)
 			System.out.println("Sent to server: " + message);
 	}
 
@@ -211,20 +217,20 @@ class AI {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		if (DEBUG) {
+		if (SHOW_ALL_NETWORK_IO) {
 			System.out.println("Received from server: " + message);
 			// System.out.println("\t"
 			// + Thread.currentThread().getStackTrace()[2].toString());
-			String[] result = message.split(" ");
-			if (result[0].charAt(0) == '&'
-					&& Integer.parseInt(result[1]) == myPlayerNumber) {
-				if (result[2].equals("blackjack"))
-					perfects++;
-				else if (result[2].equals("bust"))
-					busts++;
-				else if (result[2].equals("stand"))
-					under++;
-			}
+		}
+		String[] result = message.split(" ");
+		if (result[0].charAt(0) == '&'
+				&& Integer.parseInt(result[1]) == myPlayerNumber) {
+			if (result[2].equals("blackjack"))
+				perfects++;
+			else if (result[2].equals("bust"))
+				busts++;
+			else if (result[2].equals("stand"))
+				under++;
 		}
 		return message;
 	}
@@ -283,7 +289,7 @@ class AI {
 			actOnMessage();
 			String[] nlSplit = getNextLine().split(" ");
 			if (Integer.parseInt(nlSplit[1]) == myPlayerNumber)
-				if (nlSplit[2].equals("bust") || nlSplit[2].equals("blackjack"))
+				if (nlSplit[2].equals("bust") || nlSplit[2].equals("blackjack") || nlSplit[2].equals("doubledown"))
 					return;
 
 			move = decision.decideMove(false);
@@ -299,8 +305,15 @@ class AI {
 
 	private void cardDealt(String input) {
 		String[] dCard = input.split(" ");
-		if (dCard[2].charAt(0) != 'X')
-			decision.cardPlayed(new Card(dCard[2].charAt(0)));
+		if (dCard[2].charAt(0) != 'X') {
+			Card dealtCard = new Card(dCard[2].charAt(0));
+			if (Integer.parseInt(dCard[1]) == myPlayerNumber)
+				decision.addToMyHand(dealtCard);
+			else if (Integer.parseInt(dCard[1]) == 0)
+				decision.setDealerCard(dealtCard);
+			else
+				decision.cardPlayed(new Card(dCard[2].charAt(0)));
+		}
 	}
 
 	private void stopAI(String message) {
@@ -317,10 +330,11 @@ class AI {
 	}
 
 	private void showStats() {
-		System.out.println("\nWins = " + wins + "\nLosses = " + losses
-				+ "\nUnders = " + under + "\nBusts = " + busts
-				+ "\nBlackjacks = " + perfects + "\nCoins = " + myCoins
-				+ "\nUnderThresh = " + ActionSelector.UNDER_THRESH
-				+ "\nBustThresh = " + ActionSelector.BUST_THRESH);
+		if (SHOW_STATS)
+			System.out.println("\nWins = " + wins + " Losses = " + losses
+					+ "\nUnders = " + under + " Busts = " + busts
+					+ " Blackjacks = " + perfects + "\nCoins = " + myCoins
+					+ "\nUnderT = " + ActionSelector.UNDER_THRESH + " BustT = "
+					+ ActionSelector.BUST_THRESH);
 	}
 }

@@ -18,8 +18,7 @@ public class ActionSelector {
 	// Probability of going under has to be greater than threshold to hit
 	final static double UNDER_THRESH = 0.175;
 	// Prob. of going bust must be less than thresh. to hit
-//	static double BUST_THRESH = 0.475;
-	final static double BUST_THRESH = 0.05;
+	final static double BUST_THRESH = 0.75;
 	// If blackjacking probability is greater than this, it'll play hit
 	// regardless
 	final static double PERF_THRESH = 0.75;
@@ -35,6 +34,8 @@ public class ActionSelector {
 	// Each index's possible value is 0-24
 	protected int[] playedCards = new int[13];
 	private Card dealerFaceUp;
+
+	private static final boolean DEBUG = false;
 
 	protected ActionSelector() {
 		counter = new CardCounter();
@@ -97,13 +98,14 @@ public class ActionSelector {
 			perfectProb /= totals.size();
 			bustProb /= totals.size();
 
-			if (BlackJackTesterReal.SHOW_DEBUG_TEXT) {
+			if (DEBUG) {
 				System.out.println("The perfect prob is: " + perfectProb);
 				System.out.println("The bust prob is: " + bustProb);
 				System.out.println("The under prob is: " + underProb);
 			}
-			if (perfectProb > PERF_THRESH
-					|| (underProb > UNDER_THRESH && bustProb < BUST_THRESH))
+			// if (perfectProb > PERF_THRESH
+			// || (underProb > UNDER_THRESH && bustProb < BUST_THRESH))
+			if (underProb > UNDER_THRESH && bustProb < BUST_THRESH)
 				return HIT;
 			else
 				return STAND;
@@ -112,15 +114,16 @@ public class ActionSelector {
 
 	protected void addToMyHand(Card newCard) {
 		myHand.add(newCard);
-		counter.newCard(newCard);
 	}
 
 	protected void setDealerCard(Card newCard) {
 		dealerFaceUp = newCard;
+		counter.newCard(newCard);
 	}
 
 	protected void cardPlayed(Card playedCard) {
 		playedCards[playedCard.getValue() - 1]++;
+		counter.newCard(playedCard);
 	}
 
 	private void cleanUpTotals() {
