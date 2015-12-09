@@ -31,7 +31,7 @@ public class AI {
 	private int under = 0;
 
 	private static final boolean DEBUG = true;
-	private static final boolean SHOW_ALL_NETWORK_IO = false;
+	private static final boolean SHOW_ALL_NETWORK_IO = true;
 	private static final boolean AUTO_IP = true;
 	private static final boolean SHOW_STATS = true;
 
@@ -363,5 +363,13 @@ public class AI {
 
 	public String getAction() {
 		return action;
+	}
+
+	public ActionSelector getActionSelector() {
+		return decision;
+	}
+
+	public int getCoins() {
+		return myCoins;
 	}
 }
