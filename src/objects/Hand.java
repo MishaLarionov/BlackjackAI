@@ -1,4 +1,5 @@
 package objects;
+
 import java.util.ArrayList;
 
 @SuppressWarnings("serial")
@@ -41,5 +42,14 @@ public class Hand extends ArrayList<Card> {
 			}
 		}
 		return possibleTotals;
+	}
+
+	public String toString() {
+		String out = "";
+		for (int i = 0; i < this.size() - 1; i++) {
+			out += this.get(i) + ",";
+		}
+		out += this.get(this.size() - 1);
+		return out;
 	}
 }

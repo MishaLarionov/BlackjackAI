@@ -26,8 +26,8 @@ public class AI {
 	private int myCoins = 1000;
 	private int betAmount;
 
-	private int wins = 0;
-	private int losses = 0;
+	private int myWins = 0;
+	private int myLosses = 0;
 
 	private int busts = 0;
 	private int perfects = 0;
@@ -195,15 +195,15 @@ public class AI {
 			}
 
 			if (newCoins > myCoins) {
-				wins++;
+				myWins++;
 				if (DEBUG)
 					System.out.println("Wins++");
 			} else {
-				losses++;
+				myLosses++;
 				if (DEBUG)
 					System.out.println("Losses++");
 			}
-			gui.updateWinLoss();
+			gui.updateWinLoss(myWins, myLosses, myCoins);
 			myCoins = newCoins;
 			showStats();
 
@@ -301,7 +301,7 @@ public class AI {
 		// Last move is never "hit", so gets all the hits out of the way
 		while (move == ActionSelector.HIT) {
 			action = "Hit";
-			gui.updateAction();
+			gui.updateAction(action);
 			sendMessage("hit");
 			// Gets the card and adds it to my hand
 			// This next one is guaranteed to be a card input (hopefully)
@@ -319,12 +319,12 @@ public class AI {
 		if (move == ActionSelector.DOUBLE) {
 			action = "Double Down";
 			sendMessage("doubledown");
-			gui.updateAction();
+			gui.updateAction(action);
 			return;
 		} else if (move == ActionSelector.STAND) {
 			action = "Stand";
 			sendMessage("stand");
-			gui.updateAction();
+			gui.updateAction(action);
 			return;
 		}
 	}
@@ -335,9 +335,10 @@ public class AI {
 			Card dealtCard = new Card(dCard[2].charAt(0));
 			if (Integer.parseInt(dCard[1]) == myPlayerNumber) {
 				decision.addToMyHand(dealtCard);
-				gui.updateMyCards();
+				gui.updateMyCards(decision.getMyHand());
 			} else if (Integer.parseInt(dCard[1]) == 0) {
 				decision.setDealerCard(dealtCard);
+				gui.updateDealerCard(dealtCard);
 			} else
 				decision.cardPlayed(dealtCard);
 		}
@@ -358,18 +359,18 @@ public class AI {
 
 	private void showStats() {
 		if (SHOW_STATS)
-			System.out.println("\nWins = " + wins + " Losses = " + losses
+			System.out.println("\nWins = " + myWins + " Losses = " + myLosses
 					+ "\nUnders = " + under + " Busts = " + busts
 					+ " Blackjacks = " + perfects + "\nCoins = " + myCoins
 					+ "\n" + ActionSelector.getThresholds());
 	}
 
 	public int getWins() {
-		return wins;
+		return myWins;
 	}
 
 	public int getLosses() {
-		return losses;
+		return myLosses;
 	}
 
 	public String getAction() {

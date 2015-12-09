@@ -5,6 +5,7 @@ import java.awt.Dimension;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 
+import objects.Card;
 import objects.Hand;
 import decisions.AI;
 
@@ -16,11 +17,9 @@ import decisions.AI;
  */
 
 public class GUI extends JFrame {
-	private AI ai;
 
-	private Hand myHand;
 	private MonitorPanel mPanel;
-	private static final boolean RUN_AI = false;
+	private static final boolean RUN_AI = true;
 
 	public static void main(String[] args) {
 		new GUI();
@@ -29,9 +28,9 @@ public class GUI extends JFrame {
 	public GUI() {
 		super("Vince-Felix-Iain-AI");
 		this.setDefaultCloseOperation(EXIT_ON_CLOSE);
-		this.setPreferredSize(new Dimension(300, 200));
+		this.setPreferredSize(new Dimension(600, 400));
 		this.setResizable(false);
-		mPanel = new MonitorPanel(ai);
+		mPanel = new MonitorPanel();
 		this.add(mPanel);
 		mPanel.setThresholds();
 		this.pack();
@@ -53,24 +52,23 @@ public class GUI extends JFrame {
 					"That doesn't look like a valid port", "1234");
 
 		if (RUN_AI) {
-			ai = new AI(ip, Integer.parseInt(port), this);
-			myHand = ai.getDecisionMaker().getMyHand();
+			new AI(ip, Integer.parseInt(port), GUI.this);
 		}
 	}
 
-	public void updateMyCards() {
+	public void updateMyCards(Hand myHand) {
 		mPanel.redrawMyCards(myHand);
 	}
-	
-	public void updateDealerCard() {
-		mPanel.redrawDealerCard(ai.getDecisionMaker().getDealerFaceUp());
+
+	public void updateDealerCard(Card dealerFU) {
+		mPanel.redrawDealerCard(dealerFU);
 	}
 
-	public void updateAction() {
-		mPanel.redrawMyAction(ai.getAction());
+	public void updateAction(String action) {
+		mPanel.redrawMyAction(action);
 	}
 
-	public void updateWinLoss() {
-		mPanel.updateWinLoss();
+	public void updateWinLoss(int wins, int losses, int coins) {
+		mPanel.updateAtEndOfRound(wins, losses, coins);
 	}
 }
