@@ -357,7 +357,7 @@ public class AI {
 		return wins;
 	}
 
-	public int getLosse() {
+	public int getLosses() {
 		return losses;
 	}
 

@@ -17,7 +17,7 @@ public class ActionSelector {
 	public static final int STAND = 1;
 	public static final int DOUBLE = 2;
 	// private static final int NO_MOVE = -1;
-	protected static final int[] CARD_VALUES = new int[] { 0, 1, 2, 3, 4, 5, 6,
+	private static final int[] CARD_VALUES = new int[] { 0, 1, 2, 3, 4, 5, 6,
 			7, 8, 9, 10, 10, 10, 10 };
 
 	// Probability of going under has to be greater than threshold to hit
