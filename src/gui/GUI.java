@@ -32,7 +32,8 @@ public class GUI extends JFrame {
 		super("Vince-Felix-Iain-AI");
 		this.setDefaultCloseOperation(EXIT_ON_CLOSE);
 		this.setPreferredSize(new Dimension(600, 400));
-		this.setResizable(false);
+		this.setResizable(true);
+		this.setLocation(100, 200);
 		try {
 			this.setIconImage(ImageIO.read(new File("cardIcon.png")));
 		} catch (IOException e) {

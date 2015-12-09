@@ -52,7 +52,7 @@ public class ActionSelector {
 	 * Decides move based on the total value of the cards, references Felix's
 	 * part when probability is relevant
 	 */
-	public int decideMove(boolean firstMove) {
+	public int decideMove(boolean allowedToDouble) {
 
 		// Factors in determining basic action
 		totals = myHand.recalcTotals();
@@ -69,21 +69,23 @@ public class ActionSelector {
 				return HIT;
 			} else if (smallestTotal == 9) {
 				if (dealerFaceUp.getValue() >= 3
-						&& dealerFaceUp.getValue() <= 6 && firstMove) {
+						&& dealerFaceUp.getValue() <= 6 && allowedToDouble) {
 					return DOUBLE;
 				} else
 					return HIT;
 			} else if (smallestTotal == 10) {
 				if (dealerFaceUp.getValue() >= 2
-						&& dealerFaceUp.getValue() <= 9 && firstMove) {
+						&& dealerFaceUp.getValue() <= 9 && allowedToDouble) {
 					return DOUBLE;
 				} else
 					return HIT;
 			} else {
-				if (dealerFaceUp.getValue() == 1 && !firstMove)
+				if (dealerFaceUp.getValue() == 1 && !allowedToDouble)
 					return HIT;
-				else
+				else if (allowedToDouble)
 					return DOUBLE;
+				else
+					return STAND;
 			}
 		}
 		// At this point, the minimum total is 11, and the probability of
@@ -113,7 +115,8 @@ public class ActionSelector {
 				System.out.println("The under prob is: " + underProb);
 				System.out.println("The double prob is: " + doubleProb);
 			}
-			if ((doubleProb > DOUBLE_THRESH || perfectProb > PERF_THRESH) && firstMove)
+			if ((doubleProb > DOUBLE_THRESH || perfectProb > PERF_THRESH)
+					&& allowedToDouble)
 				return DOUBLE;
 			else if (underProb > UNDER_THRESH && bustProb < BUST_THRESH)
 				return HIT;
@@ -180,7 +183,7 @@ public class ActionSelector {
 		return "BustT = " + BUST_THRESH + " PerfT = " + PERF_THRESH
 				+ " UnderT = " + UNDER_THRESH + " DoubleT = " + DOUBLE_THRESH;
 	}
-	
+
 	public Card getDealerFaceUp() {
 		return dealerFaceUp;
 	}

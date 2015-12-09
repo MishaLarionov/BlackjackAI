@@ -293,8 +293,14 @@ public class AI {
 
 		// If our number of coins is less than double the bet amount, don't
 		// allow doubling down.
-		if (myCoins > 2 * betAmount)
+		if (myCoins > 2 * betAmount){
 			move = decision.decideMove(true);
+			if (move == ActionSelector.DOUBLE) {
+				action = "Double Down";
+				sendMessage("doubledown");
+				gui.updateAction(action);
+				return;
+			}}
 		else
 			move = decision.decideMove(false);
 
@@ -307,21 +313,17 @@ public class AI {
 			// This next one is guaranteed to be a card input (hopefully)
 			actOnMessage();
 			String[] nlSplit = getNextLine().split(" ");
-			if (Integer.parseInt(nlSplit[1]) == myPlayerNumber)
-				if (nlSplit[2].equals("bust") || nlSplit[2].equals("blackjack")
-						|| nlSplit[2].equals("doubledown"))
-					return;
+			if ((Integer.parseInt(nlSplit[1]) == myPlayerNumber)
+					&& (nlSplit[2].equals("bust")
+							|| nlSplit[2].equals("blackjack") || nlSplit[2]
+								.equals("doubledown")))
+				return;
 
 			move = decision.decideMove(false);
 		}
 
 		// Either a double down or a stand must be the last move.
-		if (move == ActionSelector.DOUBLE) {
-			action = "Double Down";
-			sendMessage("doubledown");
-			gui.updateAction(action);
-			return;
-		} else if (move == ActionSelector.STAND) {
+		if (move == ActionSelector.STAND) {
 			action = "Stand";
 			sendMessage("stand");
 			gui.updateAction(action);
