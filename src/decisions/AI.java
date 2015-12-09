@@ -328,7 +328,7 @@ public class AI {
 			else if (Integer.parseInt(dCard[1]) == 0)
 				decision.setDealerCard(dealtCard);
 			else
-				decision.cardPlayed(new Card(dCard[2].charAt(0)));
+				decision.cardPlayed(dealtCard);
 		}
 	}
 
