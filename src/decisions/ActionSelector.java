@@ -1,4 +1,8 @@
+package decisions;
 import java.util.ArrayList;
+
+import objects.Card;
+import objects.Hand;
 
 /**
  * Chooses the move to make
@@ -8,10 +12,10 @@ import java.util.ArrayList;
  */
 public class ActionSelector {
 	// Constants for returning decided action
-	protected static final int HIT = 0;
-	protected static final int STAND = 1;
-	protected static final int DOUBLE = 2;
-	protected static final int NO_MOVE = -1;
+	public static final int HIT = 0;
+	public static final int STAND = 1;
+	public static final int DOUBLE = 2;
+	private static final int NO_MOVE = -1;
 	protected static final int[] CARD_VALUES = new int[] { 0, 1, 2, 3, 4, 5, 6,
 			7, 8, 9, 10, 10, 10, 10 };
 
@@ -37,7 +41,7 @@ public class ActionSelector {
 
 	private static final boolean DEBUG = false;
 
-	protected ActionSelector() {
+	public ActionSelector() {
 		counter = new CardCounter();
 		myHand = new Hand();
 	}
@@ -112,11 +116,11 @@ public class ActionSelector {
 		}
 	}
 
-	protected void addToMyHand(Card newCard) {
+	public void addToMyHand(Card newCard) {
 		myHand.add(newCard);
 	}
 
-	protected void setDealerCard(Card newCard) {
+	public void setDealerCard(Card newCard) {
 		dealerFaceUp = newCard;
 		counter.newCard(newCard);
 	}
@@ -133,7 +137,7 @@ public class ActionSelector {
 		}
 	}
 
-	protected void resetHand() {
+	public void resetHand() {
 		myHand = new Hand();
 		dealerFaceUp = null;
 	}
@@ -149,7 +153,7 @@ public class ActionSelector {
 		return false;
 	}
 
-	protected void resetCardCounter() {
+	public void resetCardCounter() {
 		counter.resetCounter();
 	}
 

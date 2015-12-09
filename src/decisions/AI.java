@@ -1,3 +1,4 @@
+package decisions;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -5,7 +6,9 @@ import java.io.PrintWriter;
 import java.net.Socket;
 import java.net.SocketException;
 
-class AI {
+import objects.Card;
+
+public class AI {
 
 	private Socket server;
 	private BufferedReader sRead;

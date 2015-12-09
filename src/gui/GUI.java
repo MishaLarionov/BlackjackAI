@@ -1,9 +1,13 @@
+package gui;
+
 import java.awt.Color;
 import java.awt.Dimension;
 
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+
+import decisions.AI;
 
 public class GUI extends JFrame {
 

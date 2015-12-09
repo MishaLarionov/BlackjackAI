@@ -1,16 +1,17 @@
+package objects;
 import java.util.ArrayList;
 
 @SuppressWarnings("serial")
 public class Hand extends ArrayList<Card> {
 
-	Hand() {
+	public Hand() {
 	}
 
 	void addCard(Card card) {
 		this.add(card);
 	}
 
-	ArrayList<Integer> recalcTotals() {
+	public ArrayList<Integer> recalcTotals() {
 		ArrayList<Integer> possibleTotals = new ArrayList<Integer>();
 		possibleTotals.add(0);
 		for (int i = 0; i < this.size(); i++) {
