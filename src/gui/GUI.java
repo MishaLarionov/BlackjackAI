@@ -7,6 +7,7 @@ import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 
+import objects.Hand;
 import decisions.AI;
 
 /**
@@ -19,6 +20,7 @@ import decisions.AI;
 public class GUI extends JFrame
 {
 	private AI ai;
+	private Hand myHand;
 	private double winLossPer;
 	private double winPer;
 	private double lossPer;
@@ -35,7 +37,7 @@ public class GUI extends JFrame
 		this.setPreferredSize(new Dimension(300, 200));
 		this.setResizable(false);
 		this.add(new MonitorPanel());
-		this.pack();
+		//this.pack();
 		this.setVisible(true);
 	}
 
@@ -61,7 +63,11 @@ public class GUI extends JFrame
 				port = JOptionPane.showInputDialog(
 						"That doesn't look like a valid port", "1234");
 
-			ai = new AI(ip, Integer.parseInt(port));
+			//ai = new AI(ip, Integer.parseInt(port));
+
+			//myHand = ai.getActionSelector().getMyHand();
+			
+			
 		}
 	}
 
