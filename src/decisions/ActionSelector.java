@@ -21,24 +21,24 @@ public class ActionSelector {
 			7, 8, 9, 10, 10, 10, 10 };
 
 	// Probability of going under has to be greater than threshold to hit
-	final static double UNDER_THRESH = 0.175;
+	private final static double UNDER_THRESH = 0.175;
 	// Prob. of going bust must be less than thresh. to hit
-	final static double BUST_THRESH = 0.75;
+	private final static double BUST_THRESH = 0.75;
 	// If blackjacking probability is greater than this, it'll play hit
 	// regardless
-	final static double PERF_THRESH = 0.8;
-	final static double DOUBLE_THRESH = 0.2;
+	private final static double PERF_THRESH = 0.8;
+	private final static double DOUBLE_THRESH = 0.2;
 
 	// AI reference, cardcounter
 	private CardCounter counter;
 
 	// Variables in determining the move
-	protected ArrayList<Integer> totals;
-	protected boolean hasAce;
+	private ArrayList<Integer> totals;
+	private boolean hasAce;
 
 	private Hand myHand;
 	// Each index's possible value is 0-24
-	protected int[] playedCards = new int[13];
+	private int[] playedCards = new int[13];
 	private Card dealerFaceUp;
 
 	private static final boolean DEBUG = false;
@@ -171,8 +171,13 @@ public class ActionSelector {
 		}
 		return min;
 	}
-	
+
 	public Hand getMyHand() {
 		return myHand;
+	}
+
+	public static String getThresholds() {
+		return "BustT = " + BUST_THRESH + " PerfT = " + PERF_THRESH
+				+ " UnderT = " + UNDER_THRESH + " DoubleT = " + DOUBLE_THRESH;
 	}
 }

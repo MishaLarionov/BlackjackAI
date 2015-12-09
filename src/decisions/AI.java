@@ -1,4 +1,5 @@
 package decisions;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -17,6 +18,7 @@ public class AI {
 	private ActionSelector decision;
 
 	private final static String NAME = "VinceFelixIainAI";
+	private String action;
 	private int myPlayerNumber;
 	private int myCoins = 1000;
 	private int betAmount;
@@ -293,6 +295,7 @@ public class AI {
 
 		// Last move is never "hit", so gets all the hits out of the way
 		while (move == ActionSelector.HIT) {
+			action = "Hit";
 			sendMessage("hit");
 			// Gets the card and adds it to my hand
 			// This next one is guaranteed to be a card input (hopefully)
@@ -308,8 +311,10 @@ public class AI {
 
 		// Either a double down or a stand must be the last move.
 		if (move == ActionSelector.DOUBLE) {
+			action = "Double Down";
 			sendMessage("doubledown");
 		} else if (move == ActionSelector.STAND) {
+			action = "Stand";
 			sendMessage("stand");
 		}
 	}
@@ -345,7 +350,18 @@ public class AI {
 			System.out.println("\nWins = " + wins + " Losses = " + losses
 					+ "\nUnders = " + under + " Busts = " + busts
 					+ " Blackjacks = " + perfects + "\nCoins = " + myCoins
-					+ "\nUnderT = " + ActionSelector.UNDER_THRESH + " BustT = "
-					+ ActionSelector.BUST_THRESH);
+					+ "\n" + ActionSelector.getThresholds());
+	}
+
+	public int getWins() {
+		return wins;
+	}
+
+	public int getLosse() {
+		return losses;
+	}
+
+	public String getAction() {
+		return action;
 	}
 }
