@@ -36,12 +36,12 @@ class AI {
 	}
 
 	public AI() {
-		// Sets up user input
-		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-
-		String ip;
-		String port;
+		String ip = "127.0.0.1", port = "1234";
 		try {
+			// Sets up user input
+			BufferedReader br = new BufferedReader(new InputStreamReader(
+					System.in));
+
 			// Gets the IP of server
 			System.out.println("What is the IP of the server?");
 			ip = br.readLine();
@@ -71,9 +71,16 @@ class AI {
 
 			br.close();
 			br = null;
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		new AI(ip, Integer.parseInt(port));
+	}
 
+	public AI(String ip, int port) {
+		try {
 			// Sets up connection
-			server = new Socket(ip, Integer.parseInt(port));
+			server = new Socket(ip, port);
 
 			sRead = new BufferedReader(new InputStreamReader(
 					server.getInputStream()));
@@ -289,7 +296,8 @@ class AI {
 			actOnMessage();
 			String[] nlSplit = getNextLine().split(" ");
 			if (Integer.parseInt(nlSplit[1]) == myPlayerNumber)
-				if (nlSplit[2].equals("bust") || nlSplit[2].equals("blackjack") || nlSplit[2].equals("doubledown"))
+				if (nlSplit[2].equals("bust") || nlSplit[2].equals("blackjack")
+						|| nlSplit[2].equals("doubledown"))
 					return;
 
 			move = decision.decideMove(false);
