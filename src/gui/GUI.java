@@ -9,15 +9,28 @@ import javax.swing.JPanel;
 
 import decisions.AI;
 
-public class GUI extends JFrame {
+/**
+ * Start-up input: IP Address, Port, Thresholds in use
+ * 
+ * Display during game: Current cards/action, Win/loss ratio, Percent win/loss
+ * Percent deviation from observed average, Round number, Coins
+ */
 
+public class GUI extends JFrame
+{
 	private AI ai;
+	private double winLossPer;
+	private double winPer;
+	private double lossPer;
+	private int roundNo;
 
-	public static void main(String[] args) {
+	public static void main(String[] args)
+	{
 		new GUI();
 	}
 
-	public GUI() {
+	public GUI()
+	{
 		this.setDefaultCloseOperation(EXIT_ON_CLOSE);
 		this.setPreferredSize(new Dimension(300, 200));
 		this.setResizable(false);
@@ -26,14 +39,17 @@ public class GUI extends JFrame {
 		this.setVisible(true);
 	}
 
-	class MonitorPanel extends JPanel {
-		public MonitorPanel() {
+	class MonitorPanel extends JPanel
+	{
+		public MonitorPanel()
+		{
 			this.setBackground(Color.WHITE);
 
 			String ip = JOptionPane.showInputDialog(
 					"Please enter the IP of the server", "127.0.0.1");
 			while (!ip
-					.matches("[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}")) {
+					.matches("[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}"))
+			{
 				ip = JOptionPane.showInputDialog(
 						"That doesn't look like a proper IPv4 address",
 						"127.0.0.1");
@@ -49,4 +65,21 @@ public class GUI extends JFrame {
 		}
 	}
 
+	private int rounds()
+	{
+		return ai.getWins() + ai.getLosses();
+	}
+
+	private void winLossPer()
+	{
+		double totalRounds = rounds();
+
+		this.winPer = (ai.getWins() * 1.0) / totalRounds;
+		this.lossPer = (ai.getLosses() * 1.0) / totalRounds;
+	}
+
+	private void winToLoss()
+	{
+		this.winLossPer = (ai.getWins() * 1.0) / (ai.getLosses() * 1.0);
+	}
 }
