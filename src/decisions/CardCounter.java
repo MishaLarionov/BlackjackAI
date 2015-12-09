@@ -16,9 +16,13 @@ public class CardCounter {
 	private int totalCards = 52 * DECKS;
 	private int[] availableCards = new int[13];
 	private double[] probabilities;
+	
 	final static int UNDER = 0;
 	final static int PERFECT = 1;
 	final static int BUST = 2;
+	final static int DOUBLE = 3;
+	
+	final static int DOUBLE_LEEWAY = 3;
 
 	/**
 	 * The constructor for the CardCounter object, fills up the array of cards
@@ -27,7 +31,7 @@ public class CardCounter {
 	protected CardCounter() {
 		// Instantiates variables, fills up the availableCards array with 24 in
 		// each index
-		probabilities = new double[3];
+		probabilities = new double[4];
 		resetCounter();
 	}
 
@@ -48,6 +52,14 @@ public class CardCounter {
 		probabilities[UNDER] = 0;
 		probabilities[PERFECT] = 0;
 		probabilities[BUST] = 0;
+		probabilities[DOUBLE] = 0;
+		
+		int doubleCards = 0;
+		for (int card = 21 - DOUBLE_LEEWAY; card < availableCards.length; card++) {
+			doubleCards += availableCards[card];
+		}
+		probabilities[DOUBLE] = doubleCards / (totalCards * 1.0);
+		
 		// Finds the leeway that is available
 		int leeway = 21 - currTotal;
 

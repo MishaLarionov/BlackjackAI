@@ -1,4 +1,5 @@
 package decisions;
+
 import java.util.ArrayList;
 
 import objects.Card;
@@ -15,7 +16,7 @@ public class ActionSelector {
 	public static final int HIT = 0;
 	public static final int STAND = 1;
 	public static final int DOUBLE = 2;
-	private static final int NO_MOVE = -1;
+	// private static final int NO_MOVE = -1;
 	protected static final int[] CARD_VALUES = new int[] { 0, 1, 2, 3, 4, 5, 6,
 			7, 8, 9, 10, 10, 10, 10 };
 
@@ -25,7 +26,8 @@ public class ActionSelector {
 	final static double BUST_THRESH = 0.75;
 	// If blackjacking probability is greater than this, it'll play hit
 	// regardless
-	final static double PERF_THRESH = 0.75;
+	final static double PERF_THRESH = 0.8;
+	final static double DOUBLE_THRESH = 0.2;
 
 	// AI reference, cardcounter
 	private CardCounter counter;
@@ -34,7 +36,7 @@ public class ActionSelector {
 	protected ArrayList<Integer> totals;
 	protected boolean hasAce;
 
-	protected Hand myHand;
+	private Hand myHand;
 	// Each index's possible value is 0-24
 	protected int[] playedCards = new int[13];
 	private Card dealerFaceUp;
@@ -90,26 +92,30 @@ public class ActionSelector {
 			double underProb = 0;
 			double perfectProb = 0;
 			double bustProb = 0;
+			double doubleProb = 0;
 			for (int i = 0; i < totals.size(); i++) {
 				if (totals.get(i) <= 21) {
 					double[] temp = counter.calculate(totals.get(i));
 					underProb += temp[CardCounter.UNDER];
 					perfectProb += temp[CardCounter.PERFECT];
 					bustProb += temp[CardCounter.BUST];
+					doubleProb += temp[CardCounter.DOUBLE];
 				}
 			}
 			underProb /= totals.size();
 			perfectProb /= totals.size();
 			bustProb /= totals.size();
+			doubleProb /= totals.size();
 
 			if (DEBUG) {
 				System.out.println("The perfect prob is: " + perfectProb);
 				System.out.println("The bust prob is: " + bustProb);
 				System.out.println("The under prob is: " + underProb);
+				System.out.println("The double prob is: " + doubleProb);
 			}
-			// if (perfectProb > PERF_THRESH
-			// || (underProb > UNDER_THRESH && bustProb < BUST_THRESH))
-			if (underProb > UNDER_THRESH && bustProb < BUST_THRESH)
+			if (doubleProb > DOUBLE_THRESH || perfectProb > PERF_THRESH)
+				return DOUBLE;
+			else if (underProb > UNDER_THRESH && bustProb < BUST_THRESH)
 				return HIT;
 			else
 				return STAND;
@@ -164,5 +170,9 @@ public class ActionSelector {
 				min = i;
 		}
 		return min;
+	}
+	
+	public Hand getMyHand() {
+		return myHand;
 	}
 }
