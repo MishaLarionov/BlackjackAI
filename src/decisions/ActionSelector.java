@@ -180,4 +180,8 @@ public class ActionSelector {
 		return "BustT = " + BUST_THRESH + " PerfT = " + PERF_THRESH
 				+ " UnderT = " + UNDER_THRESH + " DoubleT = " + DOUBLE_THRESH;
 	}
+	
+	public Card getDealerFaceUp() {
+		return dealerFaceUp;
+	}
 }

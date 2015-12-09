@@ -1,5 +1,7 @@
 package decisions;
 
+import gui.GUI;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -16,6 +18,7 @@ public class AI {
 	private PrintWriter sWrite;
 
 	private ActionSelector decision;
+	private GUI gui;
 
 	private final static String NAME = "VinceFelixIainAI";
 	private String action;
@@ -79,10 +82,11 @@ public class AI {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		new AI(ip, Integer.parseInt(port));
+		new AI(ip, Integer.parseInt(port), null);
 	}
 
-	public AI(String ip, int port) {
+	public AI(String ip, int port, GUI g) {
+		this.gui = g;
 		try {
 			// Sets up connection
 			server = new Socket(ip, port);
@@ -199,6 +203,7 @@ public class AI {
 				if (DEBUG)
 					System.out.println("Losses++");
 			}
+			gui.updateWinLoss();
 			myCoins = newCoins;
 			showStats();
 
@@ -296,6 +301,7 @@ public class AI {
 		// Last move is never "hit", so gets all the hits out of the way
 		while (move == ActionSelector.HIT) {
 			action = "Hit";
+			gui.updateAction();
 			sendMessage("hit");
 			// Gets the card and adds it to my hand
 			// This next one is guaranteed to be a card input (hopefully)
@@ -313,9 +319,13 @@ public class AI {
 		if (move == ActionSelector.DOUBLE) {
 			action = "Double Down";
 			sendMessage("doubledown");
+			gui.updateAction();
+			return;
 		} else if (move == ActionSelector.STAND) {
 			action = "Stand";
 			sendMessage("stand");
+			gui.updateAction();
+			return;
 		}
 	}
 
@@ -323,11 +333,12 @@ public class AI {
 		String[] dCard = input.split(" ");
 		if (dCard[2].charAt(0) != 'X') {
 			Card dealtCard = new Card(dCard[2].charAt(0));
-			if (Integer.parseInt(dCard[1]) == myPlayerNumber)
+			if (Integer.parseInt(dCard[1]) == myPlayerNumber) {
 				decision.addToMyHand(dealtCard);
-			else if (Integer.parseInt(dCard[1]) == 0)
+				gui.updateMyCards();
+			} else if (Integer.parseInt(dCard[1]) == 0) {
 				decision.setDealerCard(dealtCard);
-			else
+			} else
 				decision.cardPlayed(dealtCard);
 		}
 	}
@@ -365,7 +376,7 @@ public class AI {
 		return action;
 	}
 
-	public ActionSelector getActionSelector() {
+	public ActionSelector getDecisionMaker() {
 		return decision;
 	}
 

@@ -1,11 +1,9 @@
 package gui;
 
-import java.awt.Color;
 import java.awt.Dimension;
 
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
-import javax.swing.JPanel;
 
 import objects.Hand;
 import decisions.AI;
@@ -17,75 +15,62 @@ import decisions.AI;
  * Percent deviation from observed average, Round number, Coins
  */
 
-public class GUI extends JFrame
-{
+public class GUI extends JFrame {
 	private AI ai;
-	private Hand myHand;
-	private double winLossPer;
-	private double winPer;
-	private double lossPer;
-	private int roundNo;
 
-	public static void main(String[] args)
-	{
+	private Hand myHand;
+	private MonitorPanel mPanel;
+	private static final boolean RUN_AI = false;
+
+	public static void main(String[] args) {
 		new GUI();
 	}
 
-	public GUI()
-	{
+	public GUI() {
+		super("Vince-Felix-Iain-AI");
 		this.setDefaultCloseOperation(EXIT_ON_CLOSE);
 		this.setPreferredSize(new Dimension(300, 200));
 		this.setResizable(false);
-		this.add(new MonitorPanel());
-		//this.pack();
+		mPanel = new MonitorPanel(ai);
+		this.add(mPanel);
+		mPanel.setThresholds();
+		this.pack();
 		this.setVisible(true);
-	}
 
-	class MonitorPanel extends JPanel
-	{
-		public MonitorPanel()
-		{
-			this.setBackground(Color.WHITE);
+		String ip = JOptionPane.showInputDialog(
+				"Please enter the IP of the server", "127.0.0.1");
+		while (!ip.matches("[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}")) {
+			ip = JOptionPane
+					.showInputDialog(
+							"That doesn't look like a proper IPv4 address",
+							"127.0.0.1");
+		}
 
-			String ip = JOptionPane.showInputDialog(
-					"Please enter the IP of the server", "127.0.0.1");
-			while (!ip
-					.matches("[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}"))
-			{
-				ip = JOptionPane.showInputDialog(
-						"That doesn't look like a proper IPv4 address",
-						"127.0.0.1");
-			}
+		String port = JOptionPane.showInputDialog(
+				"Please enter the port of the server", "1234");
+		while (!port.matches("[0-9]*"))
+			port = JOptionPane.showInputDialog(
+					"That doesn't look like a valid port", "1234");
 
-			String port = JOptionPane.showInputDialog(
-					"Please enter the port of the server", "1234");
-			while (!port.matches("[0-9]*"))
-				port = JOptionPane.showInputDialog(
-						"That doesn't look like a valid port", "1234");
-
-			//ai = new AI(ip, Integer.parseInt(port));
-
-			//myHand = ai.getActionSelector().getMyHand();
-			
-			
+		if (RUN_AI) {
+			ai = new AI(ip, Integer.parseInt(port), this);
+			myHand = ai.getDecisionMaker().getMyHand();
 		}
 	}
 
-	private int rounds()
-	{
-		return ai.getWins() + ai.getLosses();
+	public void updateMyCards() {
+		mPanel.redrawMyCards(myHand);
+	}
+	
+	public void updateDealerCard() {
+		mPanel.redrawDealerCard(ai.getDecisionMaker().getDealerFaceUp());
 	}
 
-	private void winLossPer()
-	{
-		double totalRounds = rounds();
-
-		this.winPer = (ai.getWins() * 1.0) / totalRounds;
-		this.lossPer = (ai.getLosses() * 1.0) / totalRounds;
+	public void updateAction() {
+		mPanel.redrawMyAction(ai.getAction());
 	}
 
-	private void winToLoss()
-	{
-		this.winLossPer = (ai.getWins() * 1.0) / (ai.getLosses() * 1.0);
+	public void updateWinLoss() {
+		mPanel.updateWinLoss();
 	}
 }
