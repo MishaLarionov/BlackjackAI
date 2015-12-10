@@ -1,10 +1,7 @@
 package gui;
 
 import java.awt.Dimension;
-import java.io.File;
-import java.io.IOException;
 
-import javax.imageio.ImageIO;
 import javax.swing.ImageIcon;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
@@ -16,15 +13,16 @@ import objects.Hand;
 import decisions.AI;
 
 /**
- * Start-up input: IP Address, Port, Thresholds in use
+ * Creates a UI to show details and stats of the game
  * 
- * Display during game: Current cards/action, Win/loss ratio, Percent win/loss
- * Percent deviation from observed average, Round number, Coins
+ * @author Vince, Felix, Iain
  */
 
+@SuppressWarnings("serial")
 public class GUI extends JFrame {
 
-	private StatsPanel mPanel;
+	private StatsPanel statsPanel;
+	// For debugging
 	private static final boolean RUN_AI = true;
 
 	public static void main(String[] args) throws ClassNotFoundException,
@@ -34,20 +32,27 @@ public class GUI extends JFrame {
 		new GUI();
 	}
 
+	/**
+	 * Creates a GUI window
+	 */
 	public GUI() {
 		super("Vince-Felix-Iain-AI");
+		// Sets up the frame
 		this.setDefaultCloseOperation(EXIT_ON_CLOSE);
 		this.setPreferredSize(new Dimension(600, 400));
 		this.setResizable(true);
 		this.setLocation(150, 200);
 		ImageIcon icon = new ImageIcon("cardIcon.png");
 		this.setIconImage(icon.getImage());
-		mPanel = new StatsPanel();
-		this.add(mPanel);
-		mPanel.setThresholds();
+
+		// Adds things
+		statsPanel = new StatsPanel();
+		this.add(statsPanel);
+		statsPanel.setThresholds();
 		this.pack();
 		this.setVisible(true);
 
+		// Gets the IP address of server
 		String ip = JOptionPane.showInputDialog(
 				"Please enter the IP of the server", "127.0.0.1");
 		try {
@@ -62,42 +67,85 @@ public class GUI extends JFrame {
 			return;
 		}
 
+		// Gets the port of the server
 		String port = JOptionPane.showInputDialog(
 				"Please enter the port of the server", "1234");
 		while (!port.matches("[0-9]*"))
 			port = JOptionPane.showInputDialog(
 					"That doesn't look like a valid port", "1234");
 
+		// Runs the AI
 		if (RUN_AI) {
 			new AI(ip, Integer.parseInt(port), GUI.this);
 		}
 	}
 
+	/**
+	 * Updates my cards in the StatsPanel
+	 * 
+	 * @param myHand
+	 */
 	public void updateMyCards(Hand myHand) {
-		mPanel.redrawMyCards(myHand);
+		statsPanel.redrawMyCards(myHand);
 	}
 
+	/**
+	 * Updates the dealer's cards in the StatsPanel
+	 * 
+	 * @param dealerFU
+	 */
 	public void updateDealerCard(Card dealerFU) {
-		mPanel.redrawDealerCard(dealerFU);
+		statsPanel.redrawDealerCard(dealerFU);
 	}
 
+	/**
+	 * Update my action in the StatsPanel
+	 * 
+	 * @param action
+	 */
 	public void updateAction(String action) {
-		mPanel.redrawMyAction(action);
+		statsPanel.redrawMyAction(action);
 	}
 
+	/**
+	 * Update the results distribution (bust/blackjack/under, etc.) in the
+	 * StatsPanel
+	 * 
+	 * @param resultsDist
+	 */
 	public void updateResultsDist(String resultsDist) {
-		mPanel.updateResultsDist(resultsDist);
+		statsPanel.updateResultsDist(resultsDist);
 	}
 
+	/**
+	 * Updates the Wins/Losses/Coins in the StatsPanel
+	 * 
+	 * @param wins
+	 *            current total of wins
+	 * @param losses
+	 *            current total of losses
+	 * @param coins
+	 *            current total of coins
+	 */
 	public void updateWinLoss(int wins, int losses, int coins) {
-		mPanel.updateAtEndOfRound(wins, losses, coins);
+		statsPanel.updateAtEndOfRound(wins, losses, coins);
 	}
 
+	/**
+	 * Updates the amount that's being bet in the StatsPanel
+	 * 
+	 * @param betAmount
+	 */
 	public void updateBetAmount(int betAmount) {
-		mPanel.updateBetAmount(betAmount);
+		statsPanel.updateBetAmount(betAmount);
 	}
 
+	/**
+	 * Updates the player No in the StatsPanel
+	 * 
+	 * @param number
+	 */
 	public void setPlayerNumber(int number) {
-		mPanel.updatePlayerNumber(number);
+		statsPanel.updatePlayerNumber(number);
 	}
 }

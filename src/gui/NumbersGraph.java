@@ -7,16 +7,29 @@ import java.util.Collections;
 
 import javax.swing.JPanel;
 
+/**
+ * Graph of the coins as they dwindle over time
+ * 
+ * @author Vince, Felix, Iain
+ *
+ */
 public class NumbersGraph extends JPanel {
 
+	// Values for the graph and drawing
 	private ArrayList<Double> values = new ArrayList<Double>();
 	private double minVal = Double.MAX_VALUE;
 	private double maxVal = Double.MIN_VALUE;
 
+	// Radius of the dots
 	private int dotRadius = 5;
 
+	/**
+	 * Creates a number graph based on a supplied ArrayList
+	 * @param values ArrayList to create a graph.
+	 */
 	public NumbersGraph(ArrayList<Double> values) {
 		this.values = values;
+		repaint();
 	}
 
 	public NumbersGraph() {

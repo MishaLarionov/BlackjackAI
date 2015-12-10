@@ -17,6 +17,7 @@ public class CardCounter {
 	private int[] availableCards = new int[13];
 	private double[] probabilities;
 	
+	// Positions in the probabilities array for each value
 	public final static int UNDER = 0;
 	public final static int PERFECT = 1;
 	public final static int BUST = 2;
@@ -54,6 +55,7 @@ public class CardCounter {
 		probabilities[BUST] = 0;
 		probabilities[DOUBLE] = 0;
 		
+		// Calculates the probabilites of a double
 		int doubleCards = 0;
 		for (int card = 21 - DOUBLE_LEEWAY; card < availableCards.length; card++) {
 			doubleCards += availableCards[card];
@@ -102,6 +104,7 @@ public class CardCounter {
 				cardsOver += availableCards[card];
 			probabilities[BUST] = cardsOver / (totalCards * 1.0);
 		}
+		// Returns a copy of the array (so that things don't get messed up)
 		return Arrays.copyOf(probabilities, probabilities.length);
 	}
 

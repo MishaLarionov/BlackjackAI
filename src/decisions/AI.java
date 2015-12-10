@@ -13,28 +13,39 @@ import javax.swing.JOptionPane;
 
 import objects.Card;
 
+/**
+ * Does decision making and handles the server. Does the bulk of the work.
+ * @author Vince, Iain, Felix
+ *
+ */
 public class AI {
 
+	// Server communications
 	private Socket server;
 	private BufferedReader sRead;
 	private PrintWriter sWrite;
 
+	// Internal required objects
 	private ActionSelector decision;
 	private GUI gui;
 
+	// Game variables
 	private final static String NAME = "VinceFelixIainAI";
 	private String action;
 	private int myPlayerNumber;
 	private int myCoins = 1000;
 	private int betAmount;
 
+	// Counting wins/losses
 	private int myWins = 0;
 	private int myLosses = 0;
 
+	// Counts outcomes of each round
 	private int busts = 0;
 	private int perfects = 0;
 	private int under = 0;
 
+	// DEBUG
 	private static final boolean DEBUG = false;
 	private static final boolean SHOW_ALL_NETWORK_IO = false;
 	private static final boolean AUTO_IP = true;
@@ -45,6 +56,9 @@ public class AI {
 		new AI();
 	}
 
+	/**
+	 * Creates a new AI, asking the user for details.
+	 */
 	public AI() {
 		String ip = "127.0.0.1", port = "1234";
 		try {
@@ -87,6 +101,16 @@ public class AI {
 		new AI(ip, Integer.parseInt(port), null);
 	}
 
+	/**
+	 * Sets up the AI with predetermined IP and port #, used by the GUI class.
+	 * 
+	 * @param ip
+	 *            the IP of server
+	 * @param port
+	 *            the port # of the game
+	 * @param g
+	 *            the GUI (used to reference)
+	 */
 	public AI(String ip, int port, GUI g) {
 		this.gui = g;
 		try {
@@ -97,10 +121,12 @@ public class AI {
 					server.getInputStream()));
 			sWrite = new PrintWriter(server.getOutputStream());
 		} catch (ConnectException e) {
+			// Cannot connect to server
 			JOptionPane.showConfirmDialog(null,
 					"Are you sure the server is running?",
 					"Cannot connect to server", JOptionPane.DEFAULT_OPTION,
 					JOptionPane.ERROR_MESSAGE);
+			System.exit(0);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -130,19 +156,28 @@ public class AI {
 			System.out.println(myPlayerNumber);
 		}
 
+		// Updates the player number (for testing and tracking which AI)
 		if (gui != null)
 			gui.setPlayerNumber(myPlayerNumber);
 
+		// More server init
 		sendMessage("READY");
 		waitUntilMatching("% START");
 
+		// Reads messages from server and does things accordingly.
 		while (true) {
 			if (!actOnMessage())
 				break;
 		}
 	}
 
+	/**
+	 * Reads a message from the server and does actions accordingly.
+	 * 
+	 * @return Whether or not the game has ended
+	 */
 	private boolean actOnMessage() {
+		// Gets input from server
 		String message = getNextLine();
 
 		char firstCharacter = message.charAt(0);
@@ -171,7 +206,7 @@ public class AI {
 			break;
 
 		case '*':
-			// Bankruptcy... check if me?
+			// Bankruptcy... check if me.
 			if (Integer.parseInt(message.split(" ")[1]) == myPlayerNumber) {
 				if (DEBUG)
 					System.err.println("Kicked off by asterisk");
@@ -182,7 +217,7 @@ public class AI {
 		case '%':
 			// Server command
 			if (message.startsWith("% NEWROUND")) {
-				resetForNewRound();
+				initalizeForNewRound();
 			} else if (message.equals("% " + myPlayerNumber + " turn"))
 				runMyTurn();
 			else if (message.startsWith("% SHUFFLE")) {
@@ -199,10 +234,12 @@ public class AI {
 			String[] updateCoins = message.split(" ");
 			boolean stillPlaying = false;
 			short newCoins = 0;
+			// Finds the place in the string that is my player's coin value
 			for (int i = 1; i < updateCoins.length; i += 2) {
 				if (Integer.parseInt(updateCoins[i]) == myPlayerNumber) {
 					stillPlaying = true;
 					try {
+						// Update coins
 						newCoins = Short.parseShort(updateCoins[i + 1]);
 					} catch (ArrayIndexOutOfBoundsException e) {
 						e.printStackTrace();
@@ -211,6 +248,7 @@ public class AI {
 				}
 			}
 
+			// Check for winning or losing the round
 			if (newCoins > myCoins) {
 				myWins++;
 				if (DEBUG)
@@ -220,14 +258,19 @@ public class AI {
 				if (DEBUG)
 					System.out.println("Losses++");
 			}
+
+			// Updates the GUI as needed
 			if (gui != null) {
 				gui.updateWinLoss(myWins, myLosses, myCoins);
 				gui.updateResultsDist("Unders = " + under + " Busts = " + busts
 						+ " Blackjacks = " + perfects);
 			}
+
+			// Update coins, and show stats
 			myCoins = newCoins;
 			showStats();
 
+			// If I get kicked off for some reason...
 			if (!stillPlaying) {
 				if (DEBUG)
 					System.err.println("Game ended for some reason");
@@ -241,25 +284,42 @@ public class AI {
 		return true;
 	}
 
+	/**
+	 * Sends any message to server. Manages all output to server in entire
+	 * program
+	 * 
+	 * @param message
+	 *            message to send to server
+	 */
 	private void sendMessage(String message) {
 		sWrite.println(message);
 		sWrite.flush();
 
+		// DEBUG
 		if (SHOW_ALL_NETWORK_IO)
 			System.out.println("Sent to server: " + message);
 	}
 
+	/**
+	 * Reads the next line from the server
+	 * 
+	 * @return
+	 */
 	private String getNextLine() {
 		String message = "";
 		try {
 			message = sRead.readLine();
 		} catch (IOException e) {
+			// Can't connect to server.
 			if (DEBUG)
 				System.err.println("Connection to server failed.");
 		}
 		if (SHOW_ALL_NETWORK_IO) {
+			// DEBUG
 			System.out.println("Received from server: " + message);
 		}
+
+		// Gets the result of any turn, and records it down for stats tracking
 		String[] result = message.split(" ");
 		if (result[0].charAt(0) == '&'
 				&& Integer.parseInt(result[1]) == myPlayerNumber) {
@@ -273,14 +333,22 @@ public class AI {
 		return message;
 	}
 
-	private boolean waitUntilMatching(String start) {
+	/**
+	 * Keeps reading lines from server input until it matches the given "head"
+	 * 
+	 * @param start
+	 *            the String to wait for
+	 */
+	private void waitUntilMatching(String start) {
 		String msg = "";
 		while (true) {
 			try {
+				// Sets up a checkpoint to return to later.
 				sRead.mark(100);
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
+			// Gets next line and does comparison
 			msg = getNextLine();
 			if (msg.startsWith(start)) {
 				try {
@@ -288,26 +356,33 @@ public class AI {
 				} catch (IOException e) {
 					e.printStackTrace();
 				}
-				return true;
+				return;
 			}
 		}
 	}
 
-	private void resetForNewRound() {
+	/**
+	 * Resets the card counting for another round, and sends a bet
+	 */
+	private void initalizeForNewRound() {
 		decision.resetHand();
 
+		// Sends a bet amount
 		betAmount = 10;
 
 		sendMessage(betAmount + "");
+		// Updates GUI.
 		if (gui != null)
 			gui.updateBetAmount(betAmount);
 	}
 
+	/**
+	 * Does decision making and runs a turn.
+	 */
 	private void runMyTurn() {
 		int move;
 
-		// If our number of coins is less than double the bet amount, don't
-		// allow doubling down.
+		// Checks if possible to double down.
 		if (myCoins > 2 * betAmount) {
 			move = decision.decideMove(true);
 			if (move == ActionSelector.DOUBLE) {
@@ -331,6 +406,8 @@ public class AI {
 			actOnMessage();
 			String[] nlSplit = getNextLine().split(" ");
 			if ((Integer.parseInt(nlSplit[1]) == myPlayerNumber)
+			// The next line isn't a card input because the server does weird
+			// stuff.
 					&& (nlSplit[2].equals("bust")
 							|| nlSplit[2].equals("blackjack") || nlSplit[2]
 								.equals("doubledown")))
@@ -349,23 +426,36 @@ public class AI {
 		}
 	}
 
+	/**
+	 * Card has been shown by dealer
+	 * @param input
+	 */
 	private void cardDealt(String input) {
+		// Gets the info about the card
 		String[] dCard = input.split(" ");
 		if (dCard[2].charAt(0) != 'X') {
 			Card dealtCard = new Card(dCard[2].charAt(0));
+			// If it's been dealt to me
 			if (Integer.parseInt(dCard[1]) == myPlayerNumber) {
 				decision.addToMyHand(dealtCard);
 				if (gui != null)
 					gui.updateMyCards(decision.getMyHand());
-			} else if (Integer.parseInt(dCard[1]) == 0) {
+			}
+			// Dealer's new card
+			else if (Integer.parseInt(dCard[1]) == 0) {
 				decision.setDealerCard(dealtCard);
 				if (gui != null)
 					gui.updateDealerCard(dealtCard);
-			} else
+			}
+			// Generic other player
+			else
 				decision.cardPlayed(dealtCard);
 		}
 	}
 
+	/**
+	 * Prints out stats about how the game is progressing in the console
+	 */
 	private void showStats() {
 		if (SHOW_STATS)
 			System.out.println("\nWins = " + myWins + " Losses = " + myLosses
@@ -374,22 +464,37 @@ public class AI {
 					+ "\n" + ActionSelector.getThresholds());
 	}
 
+	/**
+	 * @return the number of wins
+	 */
 	public int getWins() {
 		return myWins;
 	}
 
+	/**
+	 * @return the number of losses
+	 */
 	public int getLosses() {
 		return myLosses;
 	}
 
+	/**
+	 * @return String describing the current action
+	 */
 	public String getAction() {
 		return action;
 	}
 
+	/**
+	 * @return the ActionSelector
+	 */
 	public ActionSelector getDecisionMaker() {
 		return decision;
 	}
 
+	/**
+	 * @return the current number of coins
+	 */
 	public int getCoins() {
 		return myCoins;
 	}

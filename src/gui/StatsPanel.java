@@ -14,6 +14,11 @@ import objects.Card;
 import objects.Hand;
 import decisions.ActionSelector;
 
+/**
+ * Shows statistics of the current game 
+ * @author Vince, Felix, Iain
+ *
+ */
 public class StatsPanel extends JPanel {
 
 	private double winLossRatio;
