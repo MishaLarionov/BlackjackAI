@@ -8,7 +8,6 @@ import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.ConnectException;
 import java.net.Socket;
-import java.net.SocketException;
 
 import javax.swing.JOptionPane;
 
@@ -114,7 +113,8 @@ public class AI {
 
 		// If not accepted into game, will quit.
 		if (!getNextLine().equals("% ACCEPTED")) {
-			System.err.println("Server denied connection");
+			if (DEBUG)
+				System.err.println("Server denied connection");
 			return;
 		}
 
@@ -130,7 +130,8 @@ public class AI {
 			System.out.println(myPlayerNumber);
 		}
 
-		gui.setPlayerNumber(myPlayerNumber);
+		if (gui != null)
+			gui.setPlayerNumber(myPlayerNumber);
 
 		sendMessage("READY");
 		waitUntilMatching("% START");
@@ -163,7 +164,8 @@ public class AI {
 		case '!':
 			// Time out, check if it's me.
 			if (Integer.parseInt(message.split(" ")[1]) == myPlayerNumber) {
-				System.err.println("Kicked off by exclamation mark");
+				if (DEBUG)
+					System.err.println("Kicked off by exclamation mark");
 				return false;
 			}
 			break;
@@ -171,7 +173,8 @@ public class AI {
 		case '*':
 			// Bankruptcy... check if me?
 			if (Integer.parseInt(message.split(" ")[1]) == myPlayerNumber) {
-				System.err.println("Kicked off by asterisk");
+				if (DEBUG)
+					System.err.println("Kicked off by asterisk");
 				return false;
 			}
 			break;
@@ -180,14 +183,14 @@ public class AI {
 			// Server command
 			if (message.startsWith("% NEWROUND")) {
 				resetForNewRound();
-				// System.out.println("New round started");
 			} else if (message.equals("% " + myPlayerNumber + " turn"))
 				runMyTurn();
 			else if (message.startsWith("% SHUFFLE")) {
 				decision.resetCardCounter();
 				// System.out.println("Shuffling");
 			} else if (message.equals("% FORMATERROR")) {
-				System.err.println("FORMATERROR from server");
+				if (DEBUG)
+					System.err.println("FORMATERROR from server");
 				return false;
 			}
 			break;
@@ -218,14 +221,17 @@ public class AI {
 				if (DEBUG)
 					System.out.println("Losses++");
 			}
-			gui.updateWinLoss(myWins, myLosses, myCoins);
-			gui.updateResultsDist("Unders = " + under + " Busts = " + busts
-					+ " Blackjacks = " + perfects);
+			if (gui != null) {
+				gui.updateWinLoss(myWins, myLosses, myCoins);
+				gui.updateResultsDist("Unders = " + under + " Busts = " + busts
+						+ " Blackjacks = " + perfects);
+			}
 			myCoins = newCoins;
 			showStats();
 
 			if (!stillPlaying) {
-				System.err.println("Game ended for some reason");
+				if (DEBUG)
+					System.err.println("Game ended for some reason");
 				return false;
 			}
 			break;
@@ -249,7 +255,8 @@ public class AI {
 		try {
 			message = sRead.readLine();
 		} catch (IOException e) {
-			System.err.println("Connection to server failed.");
+			if (DEBUG)
+				System.err.println("Connection to server failed.");
 		}
 		if (SHOW_ALL_NETWORK_IO) {
 			System.out.println("Received from server: " + message);
@@ -295,7 +302,8 @@ public class AI {
 		betAmount = 10;
 
 		sendMessage(betAmount + "");
-		gui.updateBetAmount(betAmount);
+		if (gui != null)
+			gui.updateBetAmount(betAmount);
 	}
 
 	private void runMyTurn() {
@@ -308,7 +316,8 @@ public class AI {
 			if (move == ActionSelector.DOUBLE) {
 				action = "Double Down";
 				sendMessage("doubledown");
-				gui.updateAction(action);
+				if (gui != null)
+					gui.updateAction(action);
 				return;
 			}
 		} else
@@ -317,7 +326,8 @@ public class AI {
 		// Last move is never "hit", so gets all the hits out of the way
 		while (move == ActionSelector.HIT) {
 			action = "Hit";
-			gui.updateAction(action);
+			if (gui != null)
+				gui.updateAction(action);
 			sendMessage("hit");
 			// Gets the card and adds it to my hand
 			// This next one is guaranteed to be a card input (hopefully)
@@ -336,7 +346,8 @@ public class AI {
 		if (move == ActionSelector.STAND) {
 			action = "Stand";
 			sendMessage("stand");
-			gui.updateAction(action);
+			if (gui != null)
+				gui.updateAction(action);
 			return;
 		}
 	}
@@ -347,10 +358,12 @@ public class AI {
 			Card dealtCard = new Card(dCard[2].charAt(0));
 			if (Integer.parseInt(dCard[1]) == myPlayerNumber) {
 				decision.addToMyHand(dealtCard);
-				gui.updateMyCards(decision.getMyHand());
+				if (gui != null)
+					gui.updateMyCards(decision.getMyHand());
 			} else if (Integer.parseInt(dCard[1]) == 0) {
 				decision.setDealerCard(dealtCard);
-				gui.updateDealerCard(dealtCard);
+				if (gui != null)
+					gui.updateDealerCard(dealtCard);
 			} else
 				decision.cardPlayed(dealtCard);
 		}

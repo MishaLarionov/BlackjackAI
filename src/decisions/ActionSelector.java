@@ -21,13 +21,13 @@ public class ActionSelector {
 			7, 8, 9, 10, 10, 10, 10 };
 
 	// Probability of going under has to be greater than threshold to hit
-	private final static double UNDER_THRESH = 0.15;
+	private static double UNDER_THRESH = 0.15;
 	// Prob. of going bust must be less than thresh. to hit
-	private final static double BUST_THRESH = 0.475;
+	private static double BUST_THRESH = 0.475;
 	// If blackjacking probability is greater than this, it'll play hit
 	// regardless
 	private final static double PERF_THRESH = 0.8;
-	private final static double DOUBLE_THRESH = 0.17;
+	private final static double DOUBLE_THRESH = 0.125;
 
 	// AI reference, cardcounter
 	private CardCounter counter;
@@ -186,5 +186,13 @@ public class ActionSelector {
 
 	public Card getDealerFaceUp() {
 		return dealerFaceUp;
+	}
+
+	public static void setUNDER_THRESH(double uNDER_THRESH) {
+		UNDER_THRESH = uNDER_THRESH;
+	}
+
+	public static void setBUST_THRESH(double bUST_THRESH) {
+		BUST_THRESH = bUST_THRESH;
 	}
 }
