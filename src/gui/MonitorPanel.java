@@ -65,12 +65,13 @@ public class MonitorPanel extends JPanel {
 	}
 
 	protected void recalcWinLoss(int wins, int losses, int coins) {
-		if (losses != 0)
+		if (losses != 0) {
 			winLossRatio = wins / losses;
+		}
 
 		noOfRounds = wins + losses;
-		winPercent = Math.round(wins / noOfRounds * 10000) / 100.0;
-		lossPercent = Math.round(losses / noOfRounds * 10000) / 100.0;
+		winPercent = Math.round(wins / noOfRounds * 100000) / 1000.0;
+		lossPercent = Math.round(losses / noOfRounds * 100000) / 1000.0;
 	}
 
 	protected void redrawMyCards(Hand myHand) {
@@ -95,7 +96,7 @@ public class MonitorPanel extends JPanel {
 		textBoxes[ROUNDNO].setText("Rounds: " + (wins + losses));
 		textBoxes[COINS].setText("Coins: " + coins);
 
-		coinG.updateValues(coins*1.0);
+		coinG.updateValues(coins * 1.0);
 	}
 
 	public void setThresholds() {
@@ -109,6 +110,10 @@ public class MonitorPanel extends JPanel {
 
 	public void updateBetAmount(int betAmount) {
 		textBoxes[BETAMOUNT].setText("Current bet: " + betAmount);
+	}
+
+	public void updatePlayerNumber(int number) {
+		textBoxes[TITLE].setText("VINCE-FELIX-IAIN AI (" + number + ")");
 	}
 
 	class CustomTextArea extends JTextArea {

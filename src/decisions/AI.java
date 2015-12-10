@@ -6,8 +6,11 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
+import java.net.ConnectException;
 import java.net.Socket;
 import java.net.SocketException;
+
+import javax.swing.JOptionPane;
 
 import objects.Card;
 
@@ -94,6 +97,11 @@ public class AI {
 			sRead = new BufferedReader(new InputStreamReader(
 					server.getInputStream()));
 			sWrite = new PrintWriter(server.getOutputStream());
+		} catch (ConnectException e) {
+			JOptionPane.showConfirmDialog(null,
+					"Are you sure the server is running?",
+					"Cannot connect to server", JOptionPane.DEFAULT_OPTION,
+					JOptionPane.ERROR_MESSAGE);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -106,7 +114,8 @@ public class AI {
 
 		// If not accepted into game, will quit.
 		if (!getNextLine().equals("% ACCEPTED")) {
-			stopAI("Denied server conection");
+			System.err.println("Server denied connection");
+			return;
 		}
 
 		// waitUntilMatching("@");
@@ -121,15 +130,18 @@ public class AI {
 			System.out.println(myPlayerNumber);
 		}
 
+		gui.setPlayerNumber(myPlayerNumber);
+
 		sendMessage("READY");
 		waitUntilMatching("% START");
 
 		while (true) {
-			actOnMessage();
+			if (!actOnMessage())
+				break;
 		}
 	}
 
-	private void actOnMessage() {
+	private boolean actOnMessage() {
 		String message = getNextLine();
 
 		char firstCharacter = message.charAt(0);
@@ -151,14 +163,16 @@ public class AI {
 		case '!':
 			// Time out, check if it's me.
 			if (Integer.parseInt(message.split(" ")[1]) == myPlayerNumber) {
-				stopAI("Kicked off");
+				System.err.println("Kicked off by exclamation mark");
+				return false;
 			}
 			break;
 
 		case '*':
 			// Bankruptcy... check if me?
 			if (Integer.parseInt(message.split(" ")[1]) == myPlayerNumber) {
-				stopAI("Bankrupt.");
+				System.err.println("Kicked off by asterisk");
+				return false;
 			}
 			break;
 
@@ -173,7 +187,8 @@ public class AI {
 				decision.resetCardCounter();
 				// System.out.println("Shuffling");
 			} else if (message.equals("% FORMATERROR")) {
-				stopAI("FORMATERROR from server");
+				System.err.println("FORMATERROR from server");
+				return false;
 			}
 			break;
 
@@ -210,13 +225,15 @@ public class AI {
 			showStats();
 
 			if (!stillPlaying) {
-				stopAI("Game ended for some reason");
+				System.err.println("Game ended for some reason");
+				return false;
 			}
 			break;
 
 		default:
 			break;
 		}
+		return true;
 	}
 
 	private void sendMessage(String message) {
@@ -231,10 +248,8 @@ public class AI {
 		String message = "";
 		try {
 			message = sRead.readLine();
-		} catch (SocketException e) {
-			stopAI("Connection to server failed.");
 		} catch (IOException e) {
-			e.printStackTrace();
+			System.err.println("Connection to server failed.");
 		}
 		if (SHOW_ALL_NETWORK_IO) {
 			System.out.println("Received from server: " + message);
@@ -277,16 +292,8 @@ public class AI {
 	private void resetForNewRound() {
 		decision.resetHand();
 
-		if (myCoins < 250)
-			betAmount = (int) (myCoins / 12);
-		else
-			betAmount = (int) (myCoins / 27.8);
-
-		if (betAmount < 10) {
-			betAmount = 10;
-		}
-		
 		betAmount = 10;
+
 		sendMessage(betAmount + "");
 		gui.updateBetAmount(betAmount);
 	}
@@ -347,19 +354,6 @@ public class AI {
 			} else
 				decision.cardPlayed(dealtCard);
 		}
-	}
-
-	private void stopAI(String message) {
-		System.err.println(message);
-		showStats();
-		try {
-			sRead.close();
-			sWrite.close();
-			server.close();
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		// System.exit(0);
 	}
 
 	private void showStats() {

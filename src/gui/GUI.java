@@ -98,4 +98,8 @@ public class GUI extends JFrame {
 	public void updateBetAmount(int betAmount){
 		mPanel.updateBetAmount(betAmount);
 	}
+	
+	public void setPlayerNumber(int number){
+		mPanel.updatePlayerNumber(number);
+	}
 }
