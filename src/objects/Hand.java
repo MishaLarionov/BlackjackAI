@@ -26,7 +26,7 @@ public class Hand extends ArrayList<Card> {
 
 	/**
 	 * Calculates the totals of the hand
-	 * @return
+	 * @return An ArrayList of the total
 	 */
 	public ArrayList<Integer> recalcTotals() {
 		// Creates a possible totals
@@ -62,6 +62,9 @@ public class Hand extends ArrayList<Card> {
 		return possibleTotals;
 	}
 
+	/* (non-Javadoc)
+	 * @see java.util.AbstractCollection#toString()
+	 */
 	public String toString() {
 		// Creates the string of current cards
 		String out = "";

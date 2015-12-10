@@ -21,20 +21,33 @@ public class NumbersGraph extends JPanel {
 	private double maxVal = Double.MIN_VALUE;
 
 	// Radius of the dots
-	private int dotRadius = 5;
+	private int dotRadius = 3;
 
 	/**
 	 * Creates a number graph based on a supplied ArrayList
-	 * @param values ArrayList to create a graph.
+	 * 
+	 * @param values
+	 *            ArrayList to create a graph.
 	 */
 	public NumbersGraph(ArrayList<Double> values) {
 		this.values = values;
+		minVal = Collections.min(values);
+		maxVal = Collections.max(values);
 		repaint();
 	}
 
+	/**
+	 * Creates an empty graph
+	 */
 	public NumbersGraph() {
 	}
 
+	/**
+	 * Changes the dot radius
+	 * 
+	 * @param radius
+	 *            the new dot radius
+	 */
 	public void setDotRadius(int radius) {
 		this.dotRadius = radius;
 	}
@@ -42,13 +55,18 @@ public class NumbersGraph extends JPanel {
 	@Override
 	public void paintComponent(Graphics g) {
 		super.paintComponent(g);
+
+		// Resets things
 		this.removeAll();
 		this.updateUI();
+
+		// Background
 		g.setColor(Color.BLACK);
 		g.fillRect(0, 0, this.getWidth(), this.getHeight());
 		if (values.size() < 1)
 			return;
 
+		// Gets the amount of pixels per unit
 		double xPixPerRound, yPixPerValue;
 		xPixPerRound = this.getSize().getWidth() / values.size();
 		try {
@@ -57,6 +75,7 @@ public class NumbersGraph extends JPanel {
 			return;
 		}
 
+		// Calculates each point and stores it in an array
 		DoublePoint[] graphPoints = new DoublePoint[values.size()];
 		for (int i = 0; i < graphPoints.length; i++) {
 			double x = xPixPerRound * i;
@@ -65,6 +84,8 @@ public class NumbersGraph extends JPanel {
 			graphPoints[i] = new DoublePoint(x, y);
 		}
 
+		// Goes through the array and draws the points and their connecting
+		// lines
 		g.setColor(Color.RED);
 		g.fillOval((int) (Math.round(graphPoints[0].getX())),
 				(int) (Math.round(graphPoints[0].getY())), dotRadius, dotRadius);
@@ -79,6 +100,8 @@ public class NumbersGraph extends JPanel {
 					(int) (Math.round(graphPoints[i].getY())), dotRadius,
 					dotRadius);
 		}
+
+		// Draws a net change line
 		g.setColor(Color.YELLOW);
 		g.drawLine((int) (graphPoints[0].getX()),
 				(int) (graphPoints[0].getY()),
@@ -86,9 +109,17 @@ public class NumbersGraph extends JPanel {
 				(int) (graphPoints[graphPoints.length - 1].getY()));
 	}
 
-	public void updateValues(double newVal) {
+	/**
+	 * Adds a new value to the graph (at the end)
+	 * 
+	 * @param newVal
+	 *            the new value
+	 */
+	public void newValue(double newVal) {
 		values.add(newVal);
 
+		// Changes the min and max only when this happens, so it avoids having
+		// to recalculate every single time
 		if (newVal > maxVal) {
 			maxVal = newVal;
 		}
@@ -96,11 +127,19 @@ public class NumbersGraph extends JPanel {
 			minVal = newVal;
 		}
 
+		// Refresh
 		this.repaint();
 	}
 
+	/**
+	 * Used to store a point in double precision
+	 * 
+	 * @author Vince, Iain, Felix
+	 *
+	 */
 	private class DoublePoint {
 
+		// To store the position
 		private double x;
 		private double y;
 
@@ -109,19 +148,40 @@ public class NumbersGraph extends JPanel {
 			y = 0;
 		}
 
+		/**
+		 * Creates a DoublePoint with given x and y values
+		 * 
+		 * @param x
+		 * @param y
+		 */
 		private DoublePoint(double x, double y) {
 			this.x = x;
 			this.y = y;
 		}
 
+		/**
+		 * Gets the x
+		 * 
+		 * @return the X value
+		 */
 		private double getX() {
 			return x;
 		}
 
+		/**
+		 * Gets the y
+		 * 
+		 * @return the Y value
+		 */
 		private double getY() {
 			return y;
 		}
 
+		/*
+		 * (non-Javadoc)
+		 * 
+		 * @see java.lang.Object#toString()
+		 */
 		public String toString() {
 			return x + " " + y;
 		}
