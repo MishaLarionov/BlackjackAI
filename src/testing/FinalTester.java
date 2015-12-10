@@ -9,8 +9,8 @@ import decisions.ActionSelector;
 
 public class FinalTester {
 
-	private final static double UNDER_THRESH_START = 0.1;
-	private final static double UNDER_THRESH_END = 0.4;
+	private final static double UNDER_THRESH_START = 0.35;
+	private final static double UNDER_THRESH_END = 0.6;
 	private final static double UNDER_THRESH_DELTA = 0.05;
 
 	private final static double BUST_THRESH_START = 0.1;
@@ -18,6 +18,9 @@ public class FinalTester {
 	private final static double BUST_THRESH_DELTA = 0.05;
 
 	private final static int GAMES = 5;
+	
+	private final static String IP = "127.0.0.1";
+	private final static int PORT = 1234;
 
 	public static void main(String[] args) throws IOException {
 		FileWriter fw = new FileWriter(new File("output.txt"));
@@ -31,7 +34,7 @@ public class FinalTester {
 				double winPercent = 0;
 				double lossPercent = 0;
 				for (int i = 0; i < GAMES; i++) {
-					AI ai = new AI("127.0.0.1", 1234, null);
+					AI ai = new AI(IP, PORT, null);
 					winPercent += ai.getWins();
 					lossPercent += ai.getLosses();
 				}
@@ -42,7 +45,7 @@ public class FinalTester {
 
 				fw.write(underT + " " + bustT + " " + winPercent + " "
 						+ lossPercent);
-				System.out.printf("%.4f %.4f %.4f %.4f", underT, bustT, winPercent, lossPercent);
+				System.out.printf("%.4f\t%.4f\t%.4f\t%.4f\n", underT, bustT, winPercent, lossPercent);
 			}
 		}
 		fw.close();

@@ -187,7 +187,6 @@ public class AI {
 				runMyTurn();
 			else if (message.startsWith("% SHUFFLE")) {
 				decision.resetCardCounter();
-				// System.out.println("Shuffling");
 			} else if (message.equals("% FORMATERROR")) {
 				if (DEBUG)
 					System.err.println("FORMATERROR from server");
@@ -260,8 +259,6 @@ public class AI {
 		}
 		if (SHOW_ALL_NETWORK_IO) {
 			System.out.println("Received from server: " + message);
-			// System.out.println("\t"
-			// + Thread.currentThread().getStackTrace()[2].toString());
 		}
 		String[] result = message.split(" ");
 		if (result[0].charAt(0) == '&'
