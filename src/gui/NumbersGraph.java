@@ -31,6 +31,8 @@ public class NumbersGraph extends JPanel {
 		super.paintComponent(g);
 		this.removeAll();
 		this.updateUI();
+		g.setColor(Color.BLACK);
+		g.fillRect(0, 0, this.getWidth(), this.getHeight());
 		if (values.size() < 1)
 			return;
 
@@ -64,6 +66,11 @@ public class NumbersGraph extends JPanel {
 					(int) (Math.round(graphPoints[i].getY())), dotRadius,
 					dotRadius);
 		}
+		g.setColor(Color.YELLOW);
+		g.drawLine((int) (graphPoints[0].getX()),
+				(int) (graphPoints[0].getY()),
+				(int) (graphPoints[graphPoints.length - 1].getX()),
+				(int) (graphPoints[graphPoints.length - 1].getY()));
 	}
 
 	public void updateValues(double newVal) {

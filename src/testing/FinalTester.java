@@ -17,7 +17,7 @@ public class FinalTester {
 	private final static double BUST_THRESH_END = 0.8;
 	private final static double BUST_THRESH_DELTA = 0.05;
 
-	private final static int GAMES = 5;
+	private final static int GAMES = 50000;
 	
 	private final static String IP = "127.0.0.1";
 	private final static int PORT = 1234;

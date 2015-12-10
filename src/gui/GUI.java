@@ -5,6 +5,7 @@ import java.io.File;
 import java.io.IOException;
 
 import javax.imageio.ImageIO;
+import javax.swing.ImageIcon;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.UIManager;
@@ -38,12 +39,9 @@ public class GUI extends JFrame {
 		this.setDefaultCloseOperation(EXIT_ON_CLOSE);
 		this.setPreferredSize(new Dimension(600, 400));
 		this.setResizable(true);
-		this.setLocation(100, 200);
-		try {
-			this.setIconImage(ImageIO.read(new File("cardIcon.png")));
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
+		this.setLocation(250, 150);
+		ImageIcon icon = new ImageIcon("cardIcon.png");
+		this.setIconImage(icon.getImage());
 		mPanel = new MonitorPanel();
 		this.add(mPanel);
 		mPanel.setThresholds();
@@ -94,12 +92,12 @@ public class GUI extends JFrame {
 	public void updateWinLoss(int wins, int losses, int coins) {
 		mPanel.updateAtEndOfRound(wins, losses, coins);
 	}
-	
-	public void updateBetAmount(int betAmount){
+
+	public void updateBetAmount(int betAmount) {
 		mPanel.updateBetAmount(betAmount);
 	}
-	
-	public void setPlayerNumber(int number){
+
+	public void setPlayerNumber(int number) {
 		mPanel.updatePlayerNumber(number);
 	}
 }

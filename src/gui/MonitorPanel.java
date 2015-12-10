@@ -33,7 +33,7 @@ public class MonitorPanel extends JPanel {
 	private static final int CURRACTION = 2;
 	private static final int DEALERCARDS = 3;
 	private static final int WINLOSSRATIO = 4;
-	private static final int WINLOSSPERCENT = 5;
+	private static final int WINLOSSNUMBERS = 5;
 	private static final int THRESHOLDS = 6;
 	private static final int ROUNDNO = 7;
 	private static final int COINS = 8;
@@ -51,11 +51,13 @@ public class MonitorPanel extends JPanel {
 		textInfo = new JPanel();
 		BoxLayout layout = new BoxLayout(textInfo, BoxLayout.Y_AXIS);
 		textInfo.setLayout(layout);
+		textInfo.setBackground(Color.WHITE);
 		for (int i = 0; i < textBoxes.length; i++) {
 			textBoxes[i] = new CustomTextArea();
 			textInfo.add(textBoxes[i]);
 		}
 		textBoxes[TITLE].setText("VINCE-FELIX-IAIN AI");
+		textBoxes[TITLE].setFont(new Font("Arial", Font.BOLD, 16));
 
 		textScrollable = new JScrollPane(textInfo);
 		this.add(textScrollable);
@@ -66,7 +68,8 @@ public class MonitorPanel extends JPanel {
 
 	protected void recalcWinLoss(int wins, int losses, int coins) {
 		if (losses != 0) {
-			winLossRatio = wins / losses;
+			winLossRatio = Math.round((double) (wins) / (double) (losses)
+					* 1000.0) / 1000.0;
 		}
 
 		noOfRounds = wins + losses;
@@ -91,8 +94,9 @@ public class MonitorPanel extends JPanel {
 		recalcWinLoss(wins, losses, coins);
 
 		textBoxes[WINLOSSRATIO].setText("Win/Loss Ratio: " + winLossRatio);
-		textBoxes[WINLOSSPERCENT].setText("Win Percentage: " + winPercent
-				+ "%\nLoss Percentage: " + lossPercent + "%");
+		textBoxes[WINLOSSNUMBERS].setText("Win Percentage: " + winPercent
+				+ "%\nLoss Percentage: " + lossPercent + "%\nWins: " + wins
+				+ "\nLosses: " + losses);
 		textBoxes[ROUNDNO].setText("Rounds: " + (wins + losses));
 		textBoxes[COINS].setText("Coins: " + coins);
 
@@ -126,6 +130,7 @@ public class MonitorPanel extends JPanel {
 			this.setLineWrap(true);
 			this.setForeground(Color.BLACK);
 			this.setOpaque(false);
+			this.setBackground(Color.WHITE);
 			this.setFocusable(false);
 			this.setAlignmentX(LEFT_ALIGNMENT);
 		}

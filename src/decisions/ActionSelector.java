@@ -23,11 +23,11 @@ public class ActionSelector {
 	// Probability of going under has to be greater than threshold to hit
 	private static double UNDER_THRESH = 0.15;
 	// Prob. of going bust must be less than thresh. to hit
-	private static double BUST_THRESH = 0.475;
+	private static double BUST_THRESH = 0.44;
 	// If blackjacking probability is greater than this, it'll play hit
 	// regardless
 	private final static double PERF_THRESH = 0.8;
-	private final static double DOUBLE_THRESH = 0.125;
+	private final static double DOUBLE_THRESH = 0.15;
 
 	// AI reference, cardcounter
 	private CardCounter counter;
@@ -180,8 +180,7 @@ public class ActionSelector {
 	}
 
 	public static String getThresholds() {
-		return "BustT = " + BUST_THRESH + " PerfT = " + PERF_THRESH
-				+ " UnderT = " + UNDER_THRESH + " DoubleT = " + DOUBLE_THRESH;
+		return "BustT = " + BUST_THRESH + " UnderT = " + UNDER_THRESH;
 	}
 
 	public Card getDealerFaceUp() {
