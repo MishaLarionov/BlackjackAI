@@ -1,6 +1,13 @@
 package gui;
 
 import java.awt.Dimension;
+import java.awt.GridLayout;
+import java.awt.event.ComponentEvent;
+import java.awt.event.ComponentListener;
+import java.awt.event.WindowEvent;
+import java.awt.event.WindowFocusListener;
+import java.awt.event.WindowListener;
+import java.awt.event.WindowStateListener;
 
 import javax.swing.ImageIcon;
 import javax.swing.JFrame;
@@ -39,9 +46,9 @@ public class GUI extends JFrame {
 		super("Vince-Felix-Iain-AI");
 		// Sets up the frame
 		this.setDefaultCloseOperation(EXIT_ON_CLOSE);
-		this.setPreferredSize(new Dimension(600, 400));
+		this.setPreferredSize(new Dimension(350, 650));
 		this.setResizable(true);
-		this.setLocation(150, 200);
+		this.setLocation(100, 75);
 		ImageIcon icon = new ImageIcon("cardIcon.png");
 		this.setIconImage(icon.getImage());
 

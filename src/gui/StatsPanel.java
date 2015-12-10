@@ -4,6 +4,8 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.GridLayout;
+import java.awt.event.ComponentEvent;
+import java.awt.event.ComponentListener;
 
 import javax.swing.BoxLayout;
 import javax.swing.JPanel;
@@ -56,7 +58,7 @@ public class StatsPanel extends JPanel {
 		super();
 		// Set up
 		this.setBackground(Color.WHITE);
-		this.setLayout(new GridLayout(1, 2, 8, 0));
+		this.setLayout(new GridLayout(2, 1, 0, 8));
 
 		// Create the text boxes and adds it to the panel
 		textInfo = new JPanel();
@@ -77,6 +79,34 @@ public class StatsPanel extends JPanel {
 		// Adds the graph
 		coinG = new NumbersGraph();
 		this.add(coinG);
+
+		this.addComponentListener(new ComponentListener() {
+
+			@Override
+			public void componentShown(ComponentEvent e) {
+				// nothing
+			}
+
+			@Override
+			public void componentResized(ComponentEvent e) {
+				if (StatsPanel.this.getSize().getWidth()
+						/ StatsPanel.this.getSize().getHeight() < 1) {
+					StatsPanel.this.setLayout(new GridLayout(2, 1, 0, 8));
+				} else {
+					StatsPanel.this.setLayout(new GridLayout(1, 2, 8, 0));
+				}
+			}
+
+			@Override
+			public void componentMoved(ComponentEvent e) {
+				// nothing
+			}
+
+			@Override
+			public void componentHidden(ComponentEvent e) {
+				// nothing
+			}
+		});
 	}
 
 	/**
