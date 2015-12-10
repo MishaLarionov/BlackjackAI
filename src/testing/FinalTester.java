@@ -42,7 +42,7 @@ public class FinalTester {
 
 				fw.write(underT + " " + bustT + " " + winPercent + " "
 						+ lossPercent);
-				System.out.printf("%.4f%.4f%.4f%.4f", underT, bustT, winPercent, lossPercent);
+				System.out.printf("%.4f %.4f %.4f %.4f", underT, bustT, winPercent, lossPercent);
 			}
 		}
 		fw.close();
