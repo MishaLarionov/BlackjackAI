@@ -39,7 +39,7 @@ public class GUI extends JFrame {
 		this.setDefaultCloseOperation(EXIT_ON_CLOSE);
 		this.setPreferredSize(new Dimension(600, 400));
 		this.setResizable(true);
-		this.setLocation(250, 150);
+		this.setLocation(150, 200);
 		ImageIcon icon = new ImageIcon("cardIcon.png");
 		this.setIconImage(icon.getImage());
 		mPanel = new MonitorPanel();

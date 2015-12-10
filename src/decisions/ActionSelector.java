@@ -23,7 +23,7 @@ public class ActionSelector {
 	// Probability of going under has to be greater than threshold to hit
 	private static double UNDER_THRESH = 0.15;
 	// Prob. of going bust must be less than thresh. to hit
-	private static double BUST_THRESH = 0.44;
+	private static double BUST_THRESH = 0.485;
 	// If blackjacking probability is greater than this, it'll play hit
 	// regardless
 	private final static double PERF_THRESH = 0.8;
