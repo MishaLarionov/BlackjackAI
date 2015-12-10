@@ -14,7 +14,7 @@ import objects.Card;
 import objects.Hand;
 import decisions.ActionSelector;
 
-public class MonitorPanel extends JPanel {
+public class StatsPanel extends JPanel {
 
 	private double winLossRatio;
 	private double winPercent;
@@ -29,20 +29,20 @@ public class MonitorPanel extends JPanel {
 	private CustomTextArea[] textBoxes = new CustomTextArea[11];
 
 	private static final int TITLE = 0;
-	private static final int CURRCARDS = 1;
-	private static final int CURRACTION = 2;
-	private static final int DEALERCARDS = 3;
-	private static final int WINLOSSRATIO = 4;
-	private static final int WINLOSSNUMBERS = 5;
+	private static final int CURR_CARDS = 1;
+	private static final int CURR_ACTION = 2;
+	private static final int DEALER_CARDS = 3;
+	private static final int WINLOSS_RATIO = 4;
+	private static final int WINLOSS_NUMBERS = 5;
 	private static final int THRESHOLDS = 6;
-	private static final int ROUNDNO = 7;
+	private static final int ROUND_NO = 7;
 	private static final int COINS = 8;
-	private static final int RESULTDIST = 9;
-	private static final int BETAMOUNT = 10;
+	private static final int RESULT_DIST = 9;
+	private static final int BET_AMOUNT = 10;
 
 	private static final Font CONTENT_FONT = new Font("Arial", Font.PLAIN, 14);
 
-	public MonitorPanel() {
+	public StatsPanel() {
 		super();
 		this.setBackground(Color.WHITE);
 		this.setLayout(new GridLayout(1, 2, 8, 0));
@@ -78,26 +78,26 @@ public class MonitorPanel extends JPanel {
 	}
 
 	protected void redrawMyCards(Hand myHand) {
-		textBoxes[CURRCARDS].setText("My hand is: " + myHand.toString());
+		textBoxes[CURR_CARDS].setText("My hand is: " + myHand.toString());
 	}
 
 	protected void redrawDealerCard(Card dealerCard) {
-		textBoxes[DEALERCARDS].setText("Dealer's face-up card is: "
+		textBoxes[DEALER_CARDS].setText("Dealer's face-up card is: "
 				+ dealerCard.toString());
 	}
 
 	protected void redrawMyAction(String action) {
-		textBoxes[CURRACTION].setText("Planned action is: " + action);
+		textBoxes[CURR_ACTION].setText("Planned action is: " + action);
 	}
 
 	public void updateAtEndOfRound(int wins, int losses, int coins) {
 		recalcWinLoss(wins, losses, coins);
 
-		textBoxes[WINLOSSRATIO].setText("Win/Loss Ratio: " + winLossRatio);
-		textBoxes[WINLOSSNUMBERS].setText("Win Percentage: " + winPercent
+		textBoxes[WINLOSS_RATIO].setText("Win/Loss Ratio: " + winLossRatio);
+		textBoxes[WINLOSS_NUMBERS].setText("Win Percentage: " + winPercent
 				+ "%\nLoss Percentage: " + lossPercent + "%\nWins: " + wins
 				+ "\nLosses: " + losses);
-		textBoxes[ROUNDNO].setText("Rounds: " + (wins + losses));
+		textBoxes[ROUND_NO].setText("Rounds: " + (wins + losses));
 		textBoxes[COINS].setText("Coins: " + coins);
 
 		coinG.updateValues(coins * 1.0);
@@ -109,11 +109,11 @@ public class MonitorPanel extends JPanel {
 	}
 
 	public void updateResultsDist(String resultsDist) {
-		textBoxes[RESULTDIST].setText(resultsDist);
+		textBoxes[RESULT_DIST].setText(resultsDist);
 	}
 
 	public void updateBetAmount(int betAmount) {
-		textBoxes[BETAMOUNT].setText("Current bet: " + betAmount);
+		textBoxes[BET_AMOUNT].setText("Current bet: " + betAmount);
 	}
 
 	public void updatePlayerNumber(int number) {

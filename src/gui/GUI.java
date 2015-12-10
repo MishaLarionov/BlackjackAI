@@ -24,7 +24,7 @@ import decisions.AI;
 
 public class GUI extends JFrame {
 
-	private MonitorPanel mPanel;
+	private StatsPanel mPanel;
 	private static final boolean RUN_AI = true;
 
 	public static void main(String[] args) throws ClassNotFoundException,
@@ -42,7 +42,7 @@ public class GUI extends JFrame {
 		this.setLocation(150, 200);
 		ImageIcon icon = new ImageIcon("cardIcon.png");
 		this.setIconImage(icon.getImage());
-		mPanel = new MonitorPanel();
+		mPanel = new StatsPanel();
 		this.add(mPanel);
 		mPanel.setThresholds();
 		this.pack();
