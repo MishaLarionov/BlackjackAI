@@ -7,6 +7,8 @@ import java.io.IOException;
 import javax.imageio.ImageIO;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
+import javax.swing.UIManager;
+import javax.swing.UnsupportedLookAndFeelException;
 
 import objects.Card;
 import objects.Hand;
@@ -24,7 +26,10 @@ public class GUI extends JFrame {
 	private MonitorPanel mPanel;
 	private static final boolean RUN_AI = true;
 
-	public static void main(String[] args) {
+	public static void main(String[] args) throws ClassNotFoundException,
+			InstantiationException, IllegalAccessException,
+			UnsupportedLookAndFeelException {
+		UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
 		new GUI();
 	}
 
@@ -47,11 +52,16 @@ public class GUI extends JFrame {
 
 		String ip = JOptionPane.showInputDialog(
 				"Please enter the IP of the server", "127.0.0.1");
-		while (!ip.matches("[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}")) {
-			ip = JOptionPane
-					.showInputDialog(
-							"That doesn't look like a proper IPv4 address",
-							"127.0.0.1");
+		try {
+			while (!ip
+					.matches("[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}\\.[0-9]{1,3}")) {
+				ip = JOptionPane.showInputDialog(
+						"That doesn't look like a proper IPv4 address",
+						"127.0.0.1");
+			}
+		} catch (NullPointerException e) {
+			System.err.println("Can't find IP");
+			return;
 		}
 
 		String port = JOptionPane.showInputDialog(
@@ -77,7 +87,15 @@ public class GUI extends JFrame {
 		mPanel.redrawMyAction(action);
 	}
 
+	public void updateResultsDist(String resultsDist) {
+		mPanel.updateResultsDist(resultsDist);
+	}
+
 	public void updateWinLoss(int wins, int losses, int coins) {
 		mPanel.updateAtEndOfRound(wins, losses, coins);
+	}
+	
+	public void updateBetAmount(int betAmount){
+		mPanel.updateBetAmount(betAmount);
 	}
 }

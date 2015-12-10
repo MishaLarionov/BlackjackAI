@@ -33,10 +33,10 @@ public class AI {
 	private int perfects = 0;
 	private int under = 0;
 
-	private static final boolean DEBUG = true;
-	private static final boolean SHOW_ALL_NETWORK_IO = true;
+	private static final boolean DEBUG = false;
+	private static final boolean SHOW_ALL_NETWORK_IO = false;
 	private static final boolean AUTO_IP = true;
-	private static final boolean SHOW_STATS = true;
+	private static final boolean SHOW_STATS = false;
 
 	public static void main(String[] args) {
 		System.out.println("===AI===");
@@ -204,6 +204,8 @@ public class AI {
 					System.out.println("Losses++");
 			}
 			gui.updateWinLoss(myWins, myLosses, myCoins);
+			gui.updateResultsDist("Unders = " + under + " Busts = " + busts
+					+ " Blackjacks = " + perfects);
 			myCoins = newCoins;
 			showStats();
 
@@ -274,18 +276,19 @@ public class AI {
 
 	private void resetForNewRound() {
 		decision.resetHand();
-		betAmount = (int) ((1000 - myCoins) / 2);
 
-		if (betAmount >= myCoins) {
-			if (myCoins < 100)
-				betAmount = (int) (myCoins / 2);
-			else
-				betAmount = (int) (myCoins / 7);
-		}
+		if (myCoins < 250)
+			betAmount = (int) (myCoins / 12);
+		else
+			betAmount = (int) (myCoins / 27.8);
+
 		if (betAmount < 10) {
 			betAmount = 10;
 		}
+		
+		betAmount = 10;
 		sendMessage(betAmount + "");
+		gui.updateBetAmount(betAmount);
 	}
 
 	private void runMyTurn() {
@@ -293,15 +296,15 @@ public class AI {
 
 		// If our number of coins is less than double the bet amount, don't
 		// allow doubling down.
-		if (myCoins > 2 * betAmount){
+		if (myCoins > 2 * betAmount) {
 			move = decision.decideMove(true);
 			if (move == ActionSelector.DOUBLE) {
 				action = "Double Down";
 				sendMessage("doubledown");
 				gui.updateAction(action);
 				return;
-			}}
-		else
+			}
+		} else
 			move = decision.decideMove(false);
 
 		// Last move is never "hit", so gets all the hits out of the way
@@ -356,7 +359,7 @@ public class AI {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		System.exit(0);
+		// System.exit(0);
 	}
 
 	private void showStats() {

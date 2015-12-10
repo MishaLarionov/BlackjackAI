@@ -3,6 +3,7 @@ package gui;
 import java.awt.Color;
 import java.awt.Graphics;
 import java.util.ArrayList;
+import java.util.Collections;
 
 import javax.swing.JPanel;
 
@@ -14,7 +15,7 @@ public class NumbersGraph extends JPanel {
 
 	private double horizPadding = 10;
 	private double vertPadding = 10;
-	private int dotRadius = 6;
+	private int dotRadius = 4;
 
 	public NumbersGraph(ArrayList<Double> values) {
 		this.values = values;
@@ -30,39 +31,42 @@ public class NumbersGraph extends JPanel {
 	public void setVertPadding(double padding) {
 		this.vertPadding = padding;
 	}
-	
-	public void setDotRadius(int radius){
+
+	public void setDotRadius(int radius) {
 		this.dotRadius = radius;
 	}
 
 	@Override
 	public void paintComponent(Graphics g) {
 		super.paintComponent(g);
+		this.removeAll();
+		this.updateUI();
 		if (values.size() < 1)
 			return;
 
-		double xPixPerRound = this.getSize().getWidth() - 2 * horizPadding;
-		double yPixPerValue = this.getSize().getHeight() - 2 * vertPadding;
+		double xPixPerRound, yPixPerValue;
+		xPixPerRound = (this.getSize().getWidth() - 2 * horizPadding)
+				/ values.size();
+		try {
+			yPixPerValue = (this.getSize().getHeight() - 2 * vertPadding)
+					/ (maxVal - minVal);
+		} catch (ArithmeticException e) {
+			return;
+		}
 
 		DoublePoint[] graphPoints = new DoublePoint[values.size()];
-		for (int round = 0; round < graphPoints.length; round++) {
-			graphPoints[round] = new DoublePoint(xPixPerRound * round
-					+ horizPadding, values.get(round) * yPixPerValue
-					+ vertPadding);
+		for (int i = 0; i < graphPoints.length; i++) {
+			double x = xPixPerRound * i + horizPadding;
+			double y = (yPixPerValue * (values.get(i) - minVal)) * -1
+					+ this.getHeight();
+			graphPoints[i] = new DoublePoint(x, y);
 		}
 
 		g.setColor(Color.RED);
-		g.fillOval((int) (graphPoints[0].getX()),
-				(int) (graphPoints[0].getY()), dotRadius, dotRadius);
-		for (int i = 1; i < graphPoints.length; i++) {
-			g.setColor(Color.GREEN);
-			g.drawLine((int) (graphPoints[i - 1].getX()),
-					(int) (graphPoints[i - 1].getY()),
-					(int) (graphPoints[i].getX()),
-					(int) (graphPoints[i].getY()));
-			g.setColor(Color.RED);
-			g.fillOval((int) (graphPoints[i].getX()),
-					(int) (graphPoints[i].getY()), dotRadius, dotRadius);
+		for (int i = 0; i < graphPoints.length; i++) {
+			g.fillOval((int) (Math.round(graphPoints[i].getX())),
+					(int) (Math.round(graphPoints[i].getY())), dotRadius,
+					dotRadius);
 		}
 	}
 
@@ -100,6 +104,10 @@ public class NumbersGraph extends JPanel {
 
 		private double getY() {
 			return y;
+		}
+
+		public String toString() {
+			return x + " " + y;
 		}
 	}
 }

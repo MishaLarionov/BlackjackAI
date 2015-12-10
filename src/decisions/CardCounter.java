@@ -22,7 +22,7 @@ public class CardCounter {
 	public final static int BUST = 2;
 	public final static int DOUBLE = 3;
 	
-	private final static int DOUBLE_LEEWAY = 3;
+	private final static int DOUBLE_LEEWAY = 2;
 
 	/**
 	 * The constructor for the CardCounter object, fills up the array of cards
