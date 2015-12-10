@@ -107,6 +107,12 @@ public class NumbersGraph extends JPanel {
 				(int) (graphPoints[0].getY()),
 				(int) (graphPoints[graphPoints.length - 1].getX()),
 				(int) (graphPoints[graphPoints.length - 1].getY()));
+
+		g.setColor(Color.MAGENTA);
+		g.drawLine((int) (graphPoints[0].getX()),
+				(int) (graphPoints[0].getY()),
+				(int) (this.getSize().getWidth()),
+				(int) (graphPoints[0].getY()));
 	}
 
 	/**
@@ -115,7 +121,7 @@ public class NumbersGraph extends JPanel {
 	 * @param newVal
 	 *            the new value
 	 */
-	public void newValue(double newVal) {
+	public void addValue(double newVal) {
 		values.add(newVal);
 
 		// Changes the min and max only when this happens, so it avoids having

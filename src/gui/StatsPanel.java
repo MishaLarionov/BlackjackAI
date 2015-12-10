@@ -187,7 +187,7 @@ public class StatsPanel extends JPanel {
 		textBoxes[COINS].setText("Coins: " + coins);
 
 		// Updates the graph with new value
-		coinG.newValue(coins * 1.0);
+		coinG.addValue(coins * 1.0);
 	}
 
 	/**
