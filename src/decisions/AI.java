@@ -15,6 +15,7 @@ import objects.Card;
 
 /**
  * Does decision making and handles the server. Does the bulk of the work.
+ * 
  * @author Vince, Iain, Felix
  *
  */
@@ -26,7 +27,7 @@ public class AI {
 	private PrintWriter sWrite;
 
 	// Internal required objects
-	private ActionSelector decision;
+	private ActionSelector2 decision;
 	private GUI gui;
 
 	// Game variables
@@ -132,7 +133,7 @@ public class AI {
 		}
 
 		// more setup
-		decision = new ActionSelector();
+		decision = new ActionSelector2();
 
 		// Sends init message to server
 		sendMessage(NAME + "\nPLAY");
@@ -428,6 +429,7 @@ public class AI {
 
 	/**
 	 * Card has been shown by dealer
+	 * 
 	 * @param input
 	 */
 	private void cardDealt(String input) {
@@ -488,7 +490,7 @@ public class AI {
 	/**
 	 * @return the ActionSelector
 	 */
-	public ActionSelector getDecisionMaker() {
+	public ActionSelector2 getDecisionMaker() {
 		return decision;
 	}
 

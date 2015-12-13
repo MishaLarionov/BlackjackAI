@@ -8,7 +8,7 @@ import objects.Hand;
 public class ActionSelector2 {
 
 	private Hand myHand;
-	private int THRESHOLD = 17;
+	private static double THRESHOLD = 17;
 
 	public ActionSelector2() {
 		return;
@@ -65,5 +65,13 @@ public class ActionSelector2 {
 		}
 		total /= totals.size();
 		return total;
+	}
+
+	public static double getTHRESHOLD() {
+		return THRESHOLD;
+	}
+
+	public static void setTHRESHOLD(double tHRESHOLD) {
+		THRESHOLD = tHRESHOLD;
 	}
 }
