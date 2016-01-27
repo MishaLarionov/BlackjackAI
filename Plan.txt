@@ -8,7 +8,9 @@ Really, more of just an organizational structure for the program.
 4) Get cards, and use some risk-analysis algorithm to determine whether or not to HIT/STAND
 5) Send decision to server... as needed.
 6) Do something about counting cards
-7) Repeat.
+7) Get kicked out of casino for counting cards
+8) Find new casino to play in
+9) Repeat.
 
 [SEE PDF FOR MORE INFO ON WHAT ALGORITHM COULD BE]
 
